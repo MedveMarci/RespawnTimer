@@ -30,5 +30,8 @@
 
         [Description("The delay before the timer will be shown after player death.")]
         public float TimerDelay { get; private set; } = -1;
+        
+        [Description("The name of the category.")]
+        public string SettingHeaderLabel { get; set; } = "RespawnTimer";
     }
 }

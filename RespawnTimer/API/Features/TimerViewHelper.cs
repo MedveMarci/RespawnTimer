@@ -68,7 +68,9 @@ public partial class TimerView
         {
 #if EXILED
             int offset = (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-                ? (Respawn.NextKnownSpawnableFaction is SpawnableFaction.ChaosWave or SpawnableFaction.ChaosMiniWave ? 13 : 18)
+                ? (Respawn.NextKnownSpawnableFaction is SpawnableFaction.ChaosWave or SpawnableFaction.ChaosMiniWave
+                    ? 13
+                    : 18)
                 : 0;
 #else
             int offset = (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
@@ -171,7 +173,7 @@ public partial class TimerView
         }
     }
 
-    private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
+private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
     {
 #if EXILED
         StringBuilder.Replace("{spectators_num}",

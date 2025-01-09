@@ -1,4 +1,8 @@
-﻿namespace RespawnTimer
+﻿using System.Collections.Generic;
+using Exiled.API.Features.Core.UserSettings;
+using UserSettings.ServerSpecific;
+
+namespace RespawnTimer
 {
     using System;
     using System.IO;
@@ -74,6 +78,8 @@
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Player.Dying += EventHandler.OnDying;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnReloaded;
+            ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
+            Exiled.Events.Handlers.Player.Verified += EventHandler.OnVerified;
 
             foreach (IPlugin<IConfig> plugin in Loader.Plugins)
             {
@@ -90,7 +96,15 @@
                         break;
                 }
             }
+            HeaderSetting header = new HeaderSetting(Config.SettingHeaderLabel);
+            IEnumerable<SettingBase> settingBases = new SettingBase[]
+            {
+                header,
+                new TwoButtonsSetting(1, "Visibility", "Show", "Hide", false, "Hide/Show the Timer"),
+            };
 
+            SettingBase.Register(settingBases);
+            SettingBase.SendToAll();
             if (!Config.ReloadTimerEachRound)
                 OnReloaded();
 
@@ -144,6 +158,8 @@
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Player.Dying -= EventHandler.OnDying;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnReloaded;
+            ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
+            Exiled.Events.Handlers.Player.Verified -= EventHandler.OnVerified;
 
             EventHandler = null;
             Singleton = null;

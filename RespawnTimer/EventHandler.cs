@@ -1,4 +1,6 @@
-﻿namespace RespawnTimer
+﻿using UserSettings.ServerSpecific;
+
+namespace RespawnTimer
 {
     using System;
     using System.Collections.Generic;
@@ -187,7 +189,30 @@
             player.ReferenceHub.networkIdentity.connectionToClient.Send(new HintMessage(new TextHint(message, parameters, durationScalar: duration)));
         }
 #endif
-
         private readonly Dictionary<Player, CoroutineHandle> PlayerDeathDictionary = new(25);
+        
+        #if EXILED
+        public void OnVerified(VerifiedEventArgs ev)
+        {
+            ServerSpecificSettingsSync.SendToPlayer(ev.Player.ReferenceHub);
+        }
+        
+        public void OnSettingValueReceived(ReferenceHub hub, ServerSpecificSettingBase settingBase)
+        {
+            string userId = Player.Get(hub).UserId;
+            if (settingBase.SettingId == 1)
+            {
+                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsA)
+                {
+                    API.API.TimerHidden.Remove(userId);
+                }
+                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsB)
+                {
+                    if (API.API.TimerHidden.Contains(userId)) return;
+                    API.API.TimerHidden.Add(userId);
+                }
+            }
+        }
+        #endif
     }
 }

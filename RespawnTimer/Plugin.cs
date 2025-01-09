@@ -108,9 +108,9 @@
             // Log.Warn("Downloading ExampleTimer.zip...");
             Log.Info("Downloading ExampleTimer.zip...");
 #if EXILED
-            string url = $"https://github.com/Michal78900/RespawnTimer/releases/download/v{Version}/ExampleTimer.zip";
+            string url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{Version}/ExampleTimer.zip";
 #else
-            string url = $"https://github.com/Michal78900/RespawnTimer/releases/download/v{PluginHandler.Get(this).PluginVersion}/ExampleTimer.zip";
+            string url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{PluginHandler.Get(this).PluginVersion}/ExampleTimer.zip";
 #endif
             try
             {
@@ -166,9 +166,9 @@
         }
 
         public override string Name => "RespawnTimer";
-        public override string Author => "Michal78900";
-        public override Version Version => new(4, 0, 4);
-        public override Version RequiredExiledVersion => new(8, 9, 6);
+        public override string Author => "MedveMarci";
+        public override Version Version => new(4, 1, 0);
+        public override Version RequiredExiledVersion => new(9, 2,2);
         public override PluginPriority Priority => PluginPriority.Last;
 #endif
     }

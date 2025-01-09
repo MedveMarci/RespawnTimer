@@ -1,4 +1,4 @@
-# RespawnTimer ![Downloads](https://img.shields.io/github/downloads/Michal78900/RespawnTimer/total)
+# RespawnTimer
 A SCP: Secret Laboratory plugin that shows when the next respawn wave will happen.
 
 # Features
@@ -15,3 +15,4 @@ When you first install the plugin, the `ExampleTimer` folder will be automatical
 # Credits
 * Plugin made by Michal78900
 * Update to EXILED 8 and compatibility fixes for SH and UIU plugins by Misfiy
+* Update to EXILED 9 by MedveMarci

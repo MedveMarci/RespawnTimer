@@ -137,9 +137,7 @@
 
                         if (!TimerView.TryGetTimerForPlayer(player, out TimerView timerView))
                             continue;
-
                         string text = timerView.GetText(specNum);
-
                         if (RueiHelper.IsActive)
                         {
                             RueiHelper.Show(player.ReferenceHub, text, TimeSpan.FromSeconds(1.25f));

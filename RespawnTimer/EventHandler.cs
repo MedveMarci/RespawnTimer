@@ -1,4 +1,5 @@
-﻿using UserSettings.ServerSpecific;
+﻿using Exiled.API.Features;
+using UserSettings.ServerSpecific;
 
 namespace RespawnTimer
 {
@@ -213,6 +214,23 @@ namespace RespawnTimer
                 }
             }
         }
+        #else
+		public void OnSettingValueReceived(ReferenceHub hub, ServerSpecificSettingBase setting)
+		{
+            string userId = Player.Get(hub).UserId;
+            if (setting.SettingId == 1)
+            {
+                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsA)
+                {
+                    API.API.TimerHidden.Remove(userId);
+                }
+                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsB)
+                {
+                    if (API.API.TimerHidden.Contains(userId)) return;
+                    API.API.TimerHidden.Add(userId);
+                }
+			}
+		}
         #endif
     }
 }

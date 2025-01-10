@@ -1,14 +1,14 @@
-﻿using Exiled.API.Features;
-using UserSettings.ServerSpecific;
+﻿
 
 namespace RespawnTimer
 {
+using UserSettings.ServerSpecific;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using MEC;
     using API.Features;
 #if EXILED
+    using System.Linq;
     using Exiled.API.Features;
     using Exiled.Events.EventArgs.Player;
 #else
@@ -141,18 +141,11 @@ namespace RespawnTimer
                         if (!TimerView.TryGetTimerForPlayer(player, out TimerView timerView))
                             continue;
                         string text = timerView.GetText(specNum);
-                        if (RueiHelper.IsActive)
-                        {
-                            RueiHelper.Show(player.ReferenceHub, text, TimeSpan.FromSeconds(1.25f));
-                        }
-                        else
-                        {
 #if EXILED
-                            player.ShowHint(text, 1.25f);
+                        player.ShowHint(text, 1.25f);
 #else
-                            ShowHint(player, text, 1.25f);
+                        ShowHint(player, text, 1.25f);
 #endif
-                        }
                     }
                     catch (Exception e)
                     {

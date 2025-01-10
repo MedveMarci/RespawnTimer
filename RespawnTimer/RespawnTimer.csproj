@@ -15,24 +15,15 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'NWAPI' ">
         <TargetName>RespawnTimer-NW</TargetName>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <Reference Include="Assembly-CSharp-firstpass">
-          <HintPath>..\..\..\Downloads\Dev1\Assembly-CSharp-firstpass.dll</HintPath>
-        </Reference>
-        <Reference Include="Mirror">
-          <HintPath>..\..\..\Downloads\Dev1\Mirror.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine">
-          <HintPath>..\..\..\Downloads\Dev1\UnityEngine.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.CoreModule">
-          <HintPath>..\..\..\Downloads\Dev1\UnityEngine.CoreModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.PhysicsModule">
-          <HintPath>..\..\..\Downloads\Dev1\UnityEngine.PhysicsModule.dll</HintPath>
-        </Reference>
-        <Reference Include="YamlDotNet" HintPath="$(EXILED_REFERENCES)\YamlDotNet.dll" />
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-Publicized.dll"/>
+        <Reference Include="UnityEngine" HintPath="$(EXILED_REFERENCES)\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="$(EXILED_REFERENCES)\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="$(EXILED_REFERENCES)\YamlDotNet.dll"/>
     </ItemGroup>
     
     <ItemGroup Condition=" '$(Configuration)' == 'NWAPI' ">
@@ -41,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ExMod.Exiled" Version="9.2.2" />
+        <PackageReference Condition=" '$(Configuration)' == 'EXILED' " Include="ExMod.Exiled" Version="9.2.2"/>
         <PackageReference Condition=" '$(Configuration)' == 'NWAPI' " Include="Northwood.PluginAPI" Version="13.1.2" />
     </ItemGroup>
 

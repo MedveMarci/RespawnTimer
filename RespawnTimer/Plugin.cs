@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
-using Exiled.API.Features.Core.UserSettings;
-using UserSettings.ServerSpecific;
+﻿using UserSettings.ServerSpecific;
 
 namespace RespawnTimer
 {
-    using System;
     using System.IO;
     using System.IO.Compression;
     using System.Net;
     using API.Features;
 #if EXILED
+    using System;
+    using System.Collections.Generic;
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Interfaces;
     using Exiled.Loader;
+    using Exiled.API.Features.Core.UserSettings;
 #else
     using PluginAPI.Core;
     using PluginAPI.Core.Attributes;
@@ -70,8 +70,6 @@ namespace RespawnTimer
             string exampleTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "ExampleTimer");
             if (!Directory.Exists(exampleTimerDirectory))
                 DownloadExampleTimer(exampleTimerDirectory);
-
-            RueiHelper.Refresh();
 
 #if EXILED
             Exiled.Events.Handlers.Map.Generated += EventHandler.OnGenerated;

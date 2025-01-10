@@ -42,7 +42,7 @@ public class RespawnTimer : Plugin<Configs.Config>
     public override void OnEnabled()
 #else
         [PluginAPI.Core.Attributes.PluginPriority(LoadPriority.Medium)]
-        [PluginEntryPoint("RespawnTimer", "4.1.1", "RespawnTimer", "MedveMarci")]
+        [PluginEntryPoint("RespawnTimer", "4.2.0", "RespawnTimer", "MedveMarci")]
         private void LoadPlugin()
 #endif
     {
@@ -68,7 +68,7 @@ public class RespawnTimer : Plugin<Configs.Config>
             Directory.CreateDirectory(RespawnTimerDirectoryPath);
         }
 
-        var exampleTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "ExampleTimer");
+        var exampleTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "ExampleTimerRuei");
         if (!Directory.Exists(exampleTimerDirectory))
             DownloadExampleTimer(exampleTimerDirectory);
         rueiHelper.Init();
@@ -128,13 +128,13 @@ public class RespawnTimer : Plugin<Configs.Config>
 
         using WebClient client = new();
 
-        // Log.Warn("Downloading ExampleTimer.zip...");
-        Log.Info("Downloading ExampleTimer.zip...");
+        // Log.Warn("Downloading ExampleTimerRuei.zip...");
+        Log.Info("Downloading ExampleTimerRuei.zip...");
 #if EXILED
-        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{Version}/ExampleTimer.zip";
+        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{Version}/ExampleTimerRuei.zip";
 #else
             string url =
- $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{PluginHandler.Get(this).PluginVersion}/ExampleTimer.zip";
+ $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{PluginHandler.Get(this).PluginVersion}/ExampleTimerRuei.zip";
 #endif
         try
         {
@@ -144,17 +144,17 @@ public class RespawnTimer : Plugin<Configs.Config>
         {
             if (e.Response is HttpWebResponse response)
                 Log.Error(
-                    $"Error while downloading ExampleTimer.zip: {(int)response.StatusCode} {response.StatusCode}");
+                    $"Error while downloading ExampleTimerRuei.zip: {(int)response.StatusCode} {response.StatusCode}");
 
             return;
         }
 
-        Log.Info("ExampleTimer.zip has been downloaded!");
+        Log.Info("ExampleTimerRuei.zip has been downloaded!");
 
         // Log.Warn("Extracting...");
         Log.Info("Extracting...");
         ZipFile.ExtractToDirectory(exampleTimerZip, exampleTimerTemp);
-        Directory.Move(Path.Combine(exampleTimerTemp, "ExampleTimer"), exampleTimerDirectory);
+        Directory.Move(Path.Combine(exampleTimerTemp, "ExampleTimerRuei"), exampleTimerDirectory);
 
         Directory.Delete(exampleTimerTemp);
         File.Delete(exampleTimerZip);
@@ -193,7 +193,7 @@ public class RespawnTimer : Plugin<Configs.Config>
 
     public override string Name => "RespawnTimer";
     public override string Author => "MedveMarci";
-    public override Version Version => new(4, 1, 1);
+    public override Version Version => new(4, 2, 0);
     public override Version RequiredExiledVersion => new(9, 2, 2);
     public override PluginPriority Priority => PluginPriority.Last;
 #endif

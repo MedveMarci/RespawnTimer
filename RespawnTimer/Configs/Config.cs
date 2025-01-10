@@ -19,7 +19,7 @@ public sealed class Config : IConfig
     public Dictionary<string, string> Timers { get; private set; } = new()
     {
         {
-            "default", "ExampleTimer"
+            "default", "ExampleTimerRuei"
         }
     };
 

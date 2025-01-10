@@ -1,16 +1,14 @@
-﻿using Exiled.API.Features;
+﻿using System.Collections.Generic;
+using MEC;
+using RespawnTimer.API.Features;
 using UserSettings.ServerSpecific;
 
-namespace RespawnTimer
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using MEC;
-    using API.Features;
+namespace RespawnTimer;
+
 #if EXILED
-    using Exiled.API.Features;
-    using Exiled.Events.EventArgs.Player;
+using Exiled.API.Features;
+using Exiled.Events.EventArgs.Player;
+
 #else
     using Utils.NonAllocLINQ;
     using Hints;
@@ -20,19 +18,21 @@ namespace RespawnTimer
     using PluginAPI.Enums;
 #endif
 
-    public class EventHandler
-    {
-        private CoroutineHandle _timerCoroutine;
-        private CoroutineHandle _hintsCoroutine;
-
+public class EventHandler
+{
+    private readonly RueiHelper rueiHelper = new();
 #if NWAPI
         [PluginEvent(ServerEventType.MapGenerated)]
 #endif
-        internal void OnGenerated()
+    internal void OnGenerated()
+    {
+        if (rueiHelper.RespawnTimerElement == null)
         {
+            Timing.RunCoroutine(HintsCoroutine());
+            rueiHelper.RegisterElement();
+        }
 #if EXILED
-            if (RespawnTimer.Singleton.Config.ReloadTimerEachRound)
-                RespawnTimer.Singleton.OnReloaded();
+        if (RespawnTimer.Singleton.Config.ReloadTimerEachRound) RespawnTimer.Singleton.OnReloaded();
 #else
             if (RespawnTimer.Singleton.Config.Timers.IsEmpty())
             {
@@ -45,139 +45,44 @@ namespace RespawnTimer
             foreach (string name in RespawnTimer.Singleton.Config.Timers.Values)
                 TimerView.AddTimer(name);
 #endif
-
-            if (_timerCoroutine.IsRunning)
-                Timing.KillCoroutines(_timerCoroutine);
-
-            if (_hintsCoroutine.IsRunning)
-                Timing.KillCoroutines(_hintsCoroutine);
-        }
-
-#if NWAPI
-        [PluginEvent(ServerEventType.RoundStart)]
-#endif
-        internal void OnRoundStart()
-        {
-            try
-            {
-                _timerCoroutine = Timing.RunCoroutine(TimerCoroutine());
-                _hintsCoroutine = Timing.RunCoroutine(HintsCoroutine());
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.ToString());
-            }
-
-#if EXILED
-            Log.Debug("RespawnTimer coroutine started successfully!");
-#else
-            Log.Debug("RespawnTimer coroutine started successfully!", RespawnTimer.Singleton.Config.Debug);
-#endif
-        }
+    }
 
 #if NWAPI
         [PluginEvent(ServerEventType.PlayerDeath)]
         internal void OnDying(Player victim, Player _, DamageHandlerBase __)
 #else
-        internal void OnDying(DyingEventArgs ev)
+    internal void OnDying(DyingEventArgs ev)
 #endif
-        {
-            if (RespawnTimer.Singleton.Config.TimerDelay < 0)
-                return;
-
+    {
+        if (RespawnTimer.Singleton.Config.TimerDelay < 0) return;
 #if EXILED
-            if (PlayerDeathDictionary.ContainsKey(ev.Player))
-            {
-                Timing.KillCoroutines(PlayerDeathDictionary[ev.Player]);
-                PlayerDeathDictionary.Remove(ev.Player);
-            }
-
-            PlayerDeathDictionary.Add(ev.Player, Timing.CallDelayed(RespawnTimer.Singleton.Config.TimerDelay, () => PlayerDeathDictionary.Remove(ev.Player)));
-#else
-            if (PlayerDeathDictionary.ContainsKey(victim))
-            {
-                Timing.KillCoroutines(PlayerDeathDictionary[victim]);
-                PlayerDeathDictionary.Remove(victim);
-            }
-
-            PlayerDeathDictionary.Add(victim, Timing.CallDelayed(RespawnTimer.Singleton.Config.TimerDelay, () => PlayerDeathDictionary.Remove(victim)));
-#endif
+        if (rueiHelper.PlayerDeathDictionary.ContainsKey(ev.Player))
+        {
+            rueiHelper.PlayerDeathDictionary.Remove(ev.Player);
         }
 
-        private IEnumerator<float> TimerCoroutine()
+        rueiHelper.PlayerDeathDictionary.Add(ev.Player,
+            Timing.CallDelayed(RespawnTimer.Singleton.Config.TimerDelay,
+                () => rueiHelper.PlayerDeathDictionary.Remove(ev.Player)));
+#else
+            if (rueiHelper.PlayerDeathDictionary.ContainsKey(victim))
+            {
+                rueiHelper.PlayerDeathDictionary.Remove(victim);
+            }
+
+            rueiHelper.PlayerDeathDictionary.Add(victim, Timing.CallDelayed(RespawnTimer.Singleton.Config.TimerDelay, () => rueiHelper.PlayerDeathDictionary.Remove(victim)));
+#endif
+    }
+
+    private IEnumerator<float> HintsCoroutine()
+    {
+        while (true)
         {
             yield return Timing.WaitForSeconds(1f);
-
-            while (true)
-            {
-                yield return Timing.WaitForSeconds(1f);
-#if EXILED
-                int specNum = Player.List.Count(x => !x.IsAlive || x.SessionVariables.ContainsKey("IsGhost"));
-                foreach (Player player in Player.List)
-#else
-                int specNum = Player.GetPlayers().Count(x => !x.IsAlive);
-                foreach (Player player in Player.GetPlayers())
-#endif
-                {
-                    try
-                    {
-#if EXILED
-                        if (player.IsAlive && !player.SessionVariables.ContainsKey("IsGhost"))
-                            continue;
-#else
-                        if (player.IsAlive)
-                            continue;
-#endif
-
-                        if (player.IsOverwatchEnabled && RespawnTimer.Singleton.Config.HideTimerForOverwatch)
-                            continue;
-
-                        if (API.API.TimerHidden.Contains(player.UserId))
-                            continue;
-
-                        if (PlayerDeathDictionary.ContainsKey(player))
-                            continue;
-
-                        if (!TimerView.TryGetTimerForPlayer(player, out TimerView timerView))
-                            continue;
-                        string text = timerView.GetText(specNum);
-                        if (RueiHelper.IsActive)
-                        {
-                            RueiHelper.Show(player.ReferenceHub, text, TimeSpan.FromSeconds(1.25f));
-                        }
-                        else
-                        {
-#if EXILED
-                            player.ShowHint(text, 1.25f);
-#else
-                            ShowHint(player, text, 1.25f);
-#endif
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e.ToString());
-                    }
-                }
-
-                if (RoundSummary.singleton._roundEnded)
-                    break;
-            }
+            foreach (var timerView in TimerView.CachedTimers.Values) timerView.IncrementHintInterval();
+            if (RoundSummary.singleton._roundEnded) break;
         }
-
-        private IEnumerator<float> HintsCoroutine()
-        {
-            while (true)
-            {
-                yield return Timing.WaitForSeconds(1f);
-
-                foreach (TimerView timerView in TimerView.CachedTimers.Values)
-                    timerView.IncrementHintInterval();
-
-                if (RoundSummary.singleton._roundEnded)
-                    break;
-            }
-        }
+    }
 
 #if NWAPI
         private void ShowHint(Player player, string message, float duration = 3f)
@@ -190,31 +95,29 @@ namespace RespawnTimer
             player.ReferenceHub.networkIdentity.connectionToClient.Send(new HintMessage(new TextHint(message, parameters, durationScalar: duration)));
         }
 #endif
-        private readonly Dictionary<Player, CoroutineHandle> PlayerDeathDictionary = new(25);
-        
-        #if EXILED
-        public void OnVerified(VerifiedEventArgs ev)
+
+#if EXILED
+    public void OnVerified(VerifiedEventArgs ev)
+    {
+        ServerSpecificSettingsSync.SendToPlayer(ev.Player.ReferenceHub);
+    }
+
+    public void OnSettingValueReceived(ReferenceHub hub, ServerSpecificSettingBase settingBase)
+    {
+        var userId = Player.Get(hub).UserId;
+        if (settingBase.SettingId == 1)
         {
-            ServerSpecificSettingsSync.SendToPlayer(ev.Player.ReferenceHub);
-        }
-        
-        public void OnSettingValueReceived(ReferenceHub hub, ServerSpecificSettingBase settingBase)
-        {
-            string userId = Player.Get(hub).UserId;
-            if (settingBase.SettingId == 1)
+            if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsA)
+                API.API.TimerHidden.Remove(userId);
+
+            if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsB)
             {
-                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsA)
-                {
-                    API.API.TimerHidden.Remove(userId);
-                }
-                if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(hub, 1).SyncIsB)
-                {
-                    if (API.API.TimerHidden.Contains(userId)) return;
-                    API.API.TimerHidden.Add(userId);
-                }
+                if (API.API.TimerHidden.Contains(userId)) return;
+                API.API.TimerHidden.Add(userId);
             }
         }
-        #else
+    }
+#else
 		public void OnSettingValueReceived(ReferenceHub hub, ServerSpecificSettingBase setting)
 		{
             string userId = Player.Get(hub).UserId;
@@ -231,6 +134,5 @@ namespace RespawnTimer
                 }
 			}
 		}
-        #endif
-    }
+#endif
 }

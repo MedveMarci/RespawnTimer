@@ -1,12 +1,10 @@
+using System.Reflection;
+
 #if EXILED
 namespace RespawnTimer.API.Features.ExternalTeams
 {
-    using System.Reflection;
-
     public abstract class ExternalTeamChecker
     {
-        public abstract void Init(Assembly assembly);
-
         public bool IsSpawnable
         {
             get
@@ -21,6 +19,7 @@ namespace RespawnTimer.API.Features.ExternalTeams
         protected bool PluginEnabled { get; set; }
         protected FieldInfo FieldInfo { get; set; }
         protected object Instance { get; set; }
+        public abstract void Init(Assembly assembly);
     }
 }
 #endif

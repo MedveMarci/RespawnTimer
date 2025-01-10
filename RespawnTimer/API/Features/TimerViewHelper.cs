@@ -1,8 +1,3 @@
-using LightContainmentZoneDecontamination;
-using Respawning.Waves;
-
-namespace RespawnTimer.API.Features;
-
 using System;
 using System.Globalization;
 using System.Linq;
@@ -10,10 +5,15 @@ using GameCore;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
+using Respawning.Waves;
 using UnityEngine;
+
+namespace RespawnTimer.API.Features;
+
 #if EXILED
 using Exiled.API.Enums;
 using Exiled.API.Features;
+
 #else
 using PluginAPI.Core;
 #endif
@@ -31,13 +31,13 @@ public partial class TimerView
         SetTpsAndTickrate();
         SetHint();
     }
-
+    
     private void SetRoundTime()
     {
-        int minutes = RoundStart.RoundLength.Minutes;
+        var minutes = RoundStart.RoundLength.Minutes;
         StringBuilder.Replace("{round_minutes}",
             $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
-        int seconds = RoundStart.RoundLength.Seconds;
+        var seconds = RoundStart.RoundLength.Seconds;
         StringBuilder.Replace("{round_seconds}",
             $"{(Properties.LeadingZeros && seconds < 10 ? "0" : string.Empty)}{seconds}");
     }
@@ -47,17 +47,17 @@ public partial class TimerView
         var waves = WaveManager.Waves.OfType<TimeBasedWave>().ToList();
         var ntf = waves.FirstOrDefault(wave => wave is NtfSpawnWave && wave.ReceiveObjectiveRewards);
         var ci = waves.FirstOrDefault(wave => wave is ChaosSpawnWave && wave.ReceiveObjectiveRewards);
-        TimeSpan ciTime = TimeSpan.FromSeconds(ci?.Timer.TimeLeft ?? 0);
-        TimeSpan ntfTime = TimeSpan.FromSeconds(ntf?.Timer.TimeLeft ?? 0);
-        TimeSpan miniCiTime =
+        var ciTime = TimeSpan.FromSeconds(ci?.Timer.TimeLeft ?? 0);
+        var ntfTime = TimeSpan.FromSeconds(ntf?.Timer.TimeLeft ?? 0);
+        var miniCiTime =
             TimeSpan.FromSeconds(waves.FirstOrDefault(wave => wave is ChaosMiniWave)?.Timer.TimeLeft ?? 0);
-        TimeSpan miniNtfTime =
+        var miniNtfTime =
             TimeSpan.FromSeconds(waves.FirstOrDefault(wave => wave is NtfMiniWave)?.Timer.TimeLeft ?? 0);
 
         void ReplaceTime(string placeholder, TimeSpan time)
         {
-            int minutes = (int)time.TotalSeconds / 60;
-            int seconds = (int)Math.Round(time.TotalSeconds % 60);
+            var minutes = (int)time.TotalSeconds / 60;
+            var seconds = (int)Math.Round(time.TotalSeconds % 60);
             StringBuilder.Replace($"{{{placeholder}minutes}}",
                 $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
             StringBuilder.Replace($"{{{placeholder}seconds}}",
@@ -67,10 +67,10 @@ public partial class TimerView
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
         {
 #if EXILED
-            int offset = (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-                ? (Respawn.NextKnownSpawnableFaction is SpawnableFaction.ChaosWave or SpawnableFaction.ChaosMiniWave
+            var offset = WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning
+                ? Respawn.NextKnownSpawnableFaction is SpawnableFaction.ChaosWave or SpawnableFaction.ChaosMiniWave
                     ? 13
-                    : 18)
+                    : 18
                 : 0;
 #else
             int offset = (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
@@ -127,8 +127,8 @@ public partial class TimerView
             ReplaceTime("mn", miniNtfTime);
         else
             StringBuilder.Replace("{mnminutes}", "00").Replace("{mnseconds}", "00");
-        int miniNtfToken = waves.OfType<NtfMiniWave>().Sum(wave => wave.RespawnTokens);
-        int miniCiToken = waves.OfType<ChaosMiniWave>().Sum(wave => wave.RespawnTokens);
+        var miniNtfToken = waves.OfType<NtfMiniWave>().Sum(wave => wave.RespawnTokens);
+        var miniCiToken = waves.OfType<ChaosMiniWave>().Sum(wave => wave.RespawnTokens);
         StringBuilder.Replace("{mntoken}", $"{miniNtfToken}");
         StringBuilder.Replace("{mctoken}", $"{miniCiToken}");
     }
@@ -173,7 +173,7 @@ public partial class TimerView
         }
     }
 
-private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
+    private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
     {
 #if EXILED
         StringBuilder.Replace("{spectators_num}",
@@ -189,9 +189,9 @@ private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
     private void SetWarheadStatus()
     {
 #if EXILED
-        WarheadStatus warheadStatus = Warhead.Status;
+        var warheadStatus = Warhead.Status;
         StringBuilder.Replace("{warhead_status}", Properties.WarheadStatus[warheadStatus]);
-                    StringBuilder.Replace("{detonation_time}",
+        StringBuilder.Replace("{detonation_time}",
             warheadStatus == WarheadStatus.InProgress
                 ? Mathf.Round(Warhead.DetonationTimer).ToString(CultureInfo.InvariantCulture)
                 : string.Empty);

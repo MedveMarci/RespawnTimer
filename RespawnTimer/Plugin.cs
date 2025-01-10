@@ -54,7 +54,7 @@ public class RespawnTimer : Plugin<Configs.Config>
         Singleton = this;
         var rueiHelper = new RueiHelper();
 #if EXILED
-        RespawnTimerDirectoryPath = Path.Combine(Paths.Configs, "RespawnTimer");
+        RespawnTimerDirectoryPath = Path.Combine(Paths.Configs, "RespawnTimerRuei");
         EventHandler = new EventHandler();
 #else
             RespawnTimerDirectoryPath = PluginHandler.Get(this).PluginDirectoryPath;
@@ -63,8 +63,8 @@ public class RespawnTimer : Plugin<Configs.Config>
 
         if (!Directory.Exists(RespawnTimerDirectoryPath))
         {
-            // Log.Warn("RespawnTimer directory does not exist. Creating...");
-            Log.Info("RespawnTimer directory does not exist. Creating...");
+            // Log.Warn("RespawnTimerRuei directory does not exist. Creating...");
+            Log.Info("RespawnTimerRuei directory does not exist. Creating...");
             Directory.CreateDirectory(RespawnTimerDirectoryPath);
         }
 

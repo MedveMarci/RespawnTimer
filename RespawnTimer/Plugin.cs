@@ -42,7 +42,7 @@ public class RespawnTimer : Plugin<Configs.Config>
     public override void OnEnabled()
 #else
         [PluginAPI.Core.Attributes.PluginPriority(LoadPriority.Medium)]
-        [PluginEntryPoint("RespawnTimer", "4.2.0", "RespawnTimer", "MedveMarci")]
+        [PluginEntryPoint("RespawnTimerRuei", "4.2.1", "RespawnTimerRuei", "MedveMarci")]
         private void LoadPlugin()
 #endif
     {
@@ -191,10 +191,10 @@ public class RespawnTimer : Plugin<Configs.Config>
             TimerView.AddTimer(name);
     }
 
-    public override string Name => "RespawnTimer";
+    public override string Name => "RespawnTimerRuei";
     public override string Author => "MedveMarci";
-    public override Version Version => new(4, 2, 0);
-    public override Version RequiredExiledVersion => new(9, 2, 2);
+    public override Version Version => new(4, 2, 1);
+    public override Version RequiredExiledVersion => new(9, 3,0);
     public override PluginPriority Priority => PluginPriority.Last;
 #endif
 }

@@ -36,7 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Condition=" '$(Configuration)' == 'EXILED' " Include="ExMod.Exiled" Version="9.2.2"/>
+        <PackageReference Condition=" '$(Configuration)' == 'EXILED' " Include="ExMod.Exiled" Version="9.3.0" />
         <PackageReference Condition=" '$(Configuration)' == 'NWAPI' " Include="Northwood.PluginAPI" Version="13.1.2"/>
         <PackageReference Include="RueI" Version="2.1.1"/>
     </ItemGroup>

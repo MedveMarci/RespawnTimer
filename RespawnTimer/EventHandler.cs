@@ -122,13 +122,12 @@ using UserSettings.ServerSpecific;
                     try
                     {
 #if EXILED
-                        if (player.IsAlive && !player.SessionVariables.ContainsKey("IsGhost"))
+                        if (player == null || (player.IsAlive && !player.SessionVariables.ContainsKey("IsGhost")))
                             continue;
 #else
-                        if (player.IsAlive)
+                        if (player == null || player.IsAlive)
                             continue;
 #endif
-
                         if (player.IsOverwatchEnabled && RespawnTimer.Singleton.Config.HideTimerForOverwatch)
                             continue;
 

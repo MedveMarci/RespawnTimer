@@ -9,7 +9,6 @@
     using UnityEngine;
 #if EXILED
     using Exiled.API.Features;
-    using Exiled.Loader;
 #else
     using PluginAPI.Core;
 #endif
@@ -18,7 +17,7 @@
     {
         public static readonly Dictionary<string, TimerView> CachedTimers = new();
 
-        public int HintIndex { get; private set; }
+        private int HintIndex { get; set; }
 
         private int HintInterval { get; set; }
 
@@ -27,35 +26,35 @@
             if (CachedTimers.ContainsKey(name))
                 return;
 
-            string directoryPath = Path.Combine(RespawnTimer.RespawnTimerDirectoryPath, name);
+            var directoryPath = Path.Combine(RespawnTimer.RespawnTimerDirectoryPath, name);
             if (!Directory.Exists(directoryPath))
             {
                 Log.Error($"{name} directory does not exist!");
                 return;
             }
 
-            string timerBeforePath = Path.Combine(directoryPath, "TimerBeforeSpawn.txt");
+            var timerBeforePath = Path.Combine(directoryPath, "TimerBeforeSpawn.txt");
             if (!File.Exists(timerBeforePath))
             {
                 Log.Error($"{Path.GetFileName(timerBeforePath)} file does not exist!");
                 return;
             }
 
-            string timerDuringPath = Path.Combine(directoryPath, "TimerDuringSpawn.txt");
+            var timerDuringPath = Path.Combine(directoryPath, "TimerDuringSpawn.txt");
             if (!File.Exists(timerDuringPath))
             {
                 Log.Error($"{Path.GetFileName(timerDuringPath)} file does not exist!");
                 return;
             }
 
-            string propertiesPath = Path.Combine(directoryPath, "Properties.yml");
+            var propertiesPath = Path.Combine(directoryPath, "Properties.yml");
             if (!File.Exists(propertiesPath))
             {
                 Log.Error($"{Path.GetFileName(propertiesPath)} file does not exist! Creating...");
                 File.WriteAllText(propertiesPath, YamlParser.Serializer.Serialize(new Properties()));
             }
 
-            string hintsPath = Path.Combine(directoryPath, "Hints.txt");
+            var hintsPath = Path.Combine(directoryPath, "Hints.txt");
             List<string> hints = new();
             if (File.Exists(hintsPath))
                 hints.AddRange(File.ReadAllLines(hintsPath));
@@ -71,10 +70,10 @@
 
         public static bool TryGetTimerForPlayer(Player player, out TimerView timerView)
         {
-            string groupName = !ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out string str) ? null : str;
+            var groupName = !ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out var str) ? null : str;
 
             // Check by group name
-            if (groupName is not null && RespawnTimer.Singleton.Config.Timers.TryGetValue(groupName, out string timerName))
+            if (groupName is not null && RespawnTimer.Singleton.Config.Timers.TryGetValue(groupName, out var timerName))
             {
                 timerView = CachedTimers[timerName];
                 return true;
@@ -101,16 +100,16 @@
 
         public string GetText(int? spectatorCount = null)
         {
-            StringBuilder.Clear();
-            StringBuilder.Append(
+            _stringBuilder.Clear();
+            _stringBuilder.Append(
                 WaveManager.State is not (WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
                     ? BeforeRespawnString
                     : DuringRespawnString);
             SetAllProperties(spectatorCount);
-            StringBuilder.Replace("{RANDOM_COLOR}", $"#{Random.Range(0x0, 0xFFFFFF):X6}");
-            StringBuilder.Replace('{', '[').Replace('}', ']');
+            _stringBuilder.Replace("{RANDOM_COLOR}", $"#{Random.Range(0x0, 0xFFFFFF):X6}");
+            _stringBuilder.Replace('{', '[').Replace('}', ']');
 
-            return StringBuilder.ToString();
+            return _stringBuilder.ToString();
         }
 
         internal void IncrementHintInterval()
@@ -138,14 +137,14 @@
             Hints = hints;
         }
 
-        public string BeforeRespawnString { get; }
+        private string BeforeRespawnString { get; }
 
-        public string DuringRespawnString { get; }
+        private string DuringRespawnString { get; }
 
-        public Properties Properties { get; }
+        private Properties Properties { get; }
 
-        public List<string> Hints { get; }
+        private List<string> Hints { get; }
 
-        private readonly StringBuilder StringBuilder = new(1024);
+        private readonly StringBuilder _stringBuilder = new(1024);
     }
 }

@@ -33,5 +33,15 @@
         
         [Description("The name of the category.")]
         public string SettingHeaderLabel { get; set; } = "RespawnTimer";
+        
+        [Description("Serpent's Hand configuration.")]
+        public string SHMainClass { get; set; } = "SerpentsHand.Plugin";
+        public string SHInstance { get; set; } = "Instance";
+        public string SHFieldInfo { get; set; } = "IsSpawnable";
+        
+        [Description("UIU configuration.")]
+        public string UiuMainClass { get; set; } = "UIURescueSquad.UIURescueSquad";
+        public string UiuInstance { get; set; } = "Instance";
+        public string UiuFieldInfo { get; set; } = "IsSpawnable";
     }
 }

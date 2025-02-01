@@ -1,7 +1,6 @@
 #if EXILED
 namespace RespawnTimer.API.Features.ExternalTeams
 {
-    using System;
     using System.Reflection;
 
     public class UiuTeam : ExternalTeamChecker
@@ -10,9 +9,9 @@ namespace RespawnTimer.API.Features.ExternalTeams
         {
             PluginEnabled = true;
 
-            Type mainClass = assembly.GetType("UIURescueSquad.UIURescueSquad");
-            Instance = mainClass.GetField("Instance").GetValue(null);
-            FieldInfo = mainClass.GetField("IsSpawnable");
+            var mainClass = assembly.GetType(RespawnTimer.Singleton.Config.UiuMainClass);
+            Instance = mainClass.GetField(RespawnTimer.Singleton.Config.UiuInstance).GetValue(null);
+            FieldInfo = mainClass.GetField(RespawnTimer.Singleton.Config.UiuFieldInfo);
         }
     }
 }

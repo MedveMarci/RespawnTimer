@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>RespawnTimerRuei</AssemblyName>
+        <RootNamespace>RespawnTimerRuei</RootNamespace>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>10</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Optimize>true</Optimize>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'NWAPI' ">
+        <TargetName>RespawnTimer-NW-Ruei</TargetName>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'EXILED' ">
+        <TargetName>RespawnTimer-Ruei</TargetName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-Publicized.dll"/>
+        <Reference Include="UnityEngine" HintPath="$(EXILED_REFERENCES)\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="$(EXILED_REFERENCES)\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="$(EXILED_REFERENCES)\YamlDotNet.dll"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'NWAPI' ">
+        <Reference Include="NorthwoodLib" HintPath="$(EXILED_REFERENCES)\NorthwoodLib.dll" />
+        <Reference Include="CommandSystem.Core" HintPath="$(EXILED_REFERENCES)\CommandSystem.Core.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ExMod.Exiled" Version="9.5.0" />
+        <PackageReference Condition=" '$(Configuration)' == 'NWAPI' " Include="Northwood.PluginAPI" Version="13.1.2" />
+        <PackageReference Include="RueI" Version="2.1.1" />
+    </ItemGroup>
+
+</Project>

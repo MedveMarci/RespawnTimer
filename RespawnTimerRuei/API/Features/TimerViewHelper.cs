@@ -1,4 +1,4 @@
-namespace RespawnTimer.API.Features;
+namespace RespawnTimerRuei.API.Features;
 
 using System;
 using System.Globalization;

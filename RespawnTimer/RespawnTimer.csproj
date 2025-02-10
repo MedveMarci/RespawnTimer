@@ -10,30 +10,23 @@
         <Optimize>true</Optimize>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Platforms>AnyCPU</Platforms>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'NWAPI' ">
-        <TargetName>RespawnTimer-NW</TargetName>
+        <TargetName>RespawnTimer-LabAPI</TargetName>
+        <Configurations>LabAPI</Configurations>
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll"/>
-        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(EXILED_REFERENCES)\Assembly-CSharp-Publicized.dll"/>
-        <Reference Include="UnityEngine" HintPath="$(EXILED_REFERENCES)\UnityEngine.dll"/>
-        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll"/>
-        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
-        <Reference Include="Mirror" HintPath="$(EXILED_REFERENCES)\Mirror.dll"/>
-        <Reference Include="YamlDotNet" HintPath="$(EXILED_REFERENCES)\YamlDotNet.dll"/>
-    </ItemGroup>
-    
-    <ItemGroup Condition=" '$(Configuration)' == 'NWAPI' ">
-        <Reference Include="NorthwoodLib" HintPath="$(EXILED_REFERENCES)\NorthwoodLib.dll" />
-        <Reference Include="CommandSystem.Core" HintPath="$(EXILED_REFERENCES)\CommandSystem.Core.dll" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Condition=" '$(Configuration)' == 'EXILED' " Include="ExMod.Exiled" Version="9.5.0" />
-        <PackageReference Condition=" '$(Configuration)' == 'NWAPI' " Include="Northwood.PluginAPI" Version="13.1.2" />
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="/home/medvemarci/Asztal/Dev\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="Assembly-CSharp-Publicized" HintPath="/home/medvemarci/Asztal/Dev\Assembly-CSharp-Publicized.dll"/>
+        <Reference Include="LabApi">
+          <HintPath>..\..\..\.local\share\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\LabApi.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="/home/medvemarci/Asztal/Dev\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="/home/medvemarci/Asztal/Dev\YamlDotNet.dll"/>
+        <Reference Include="NorthwoodLib" HintPath="/home/medvemarci/Asztal/Dev\NorthwoodLib.dll" />
+        <Reference Include="CommandSystem.Core" HintPath="/home/medvemarci/Asztal/Dev\CommandSystem.Core.dll" />
     </ItemGroup>
 
 </Project>

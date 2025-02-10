@@ -1,23 +1,8 @@
 ﻿namespace RespawnTimerRuei;
 
-using UserSettings.ServerSpecific;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-#if EXILED
-using API.Features;
-using System;
-using System.Collections.Generic;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Loader;
-using Exiled.API.Features.Core.UserSettings;
-
-#else
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
-using PluginAPI.Events;
 #endif
 #if EXILED
 public class RespawnTimerRuei : Plugin<Configs.Config>

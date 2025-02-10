@@ -1,20 +1,13 @@
-namespace RespawnTimer.API.Features;
-
 using System;
 using System.Globalization;
-using Respawning.Waves;
 using System.Linq;
 using GameCore;
+using LabApi.Features.Wrappers;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
-using Respawning;
 using UnityEngine;
-#if EXILED
-using Exiled.API.Enums;
-using Exiled.API.Features;
-#else
-using PluginAPI.Core;
-#endif
+
+namespace RespawnTimer.API.Features;
 
 public partial class TimerView
 {
@@ -171,15 +164,9 @@ public partial class TimerView
 
     private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
     {
-#if EXILED
         _stringBuilder.Replace("{spectators_num}",
             spectatorCount?.ToString() ??
-            Player.List.Count(x => x.Role.Team == Team.Dead && !x.IsOverwatchEnabled).ToString());
-#else
-        _stringBuilder.Replace("{spectators_num}",
-            spectatorCount?.ToString() ?? Player.GetPlayers()
-                .Count(x => x.Role == RoleTypeId.Spectator && !x.IsOverwatchEnabled).ToString());
-#endif
+            Player.List.Count(x => x.Role == RoleTypeId.Spectator && !x.IsOverwatchEnabled).ToString());
     }
 
     private void SetWarheadStatus()
@@ -192,7 +179,7 @@ public partial class TimerView
                 ? Mathf.Round(Warhead.DetonationTimer).ToString(CultureInfo.InvariantCulture)
                 : string.Empty);
 #else
-        string warheadStatus = Warhead.IsDetonationInProgress ? Warhead.IsDetonated ? "Detonated" : "InProgress" :
+        var warheadStatus = Warhead.IsDetonationInProgress ? Warhead.IsDetonated ? "Detonated" : "InProgress" :
             Warhead.LeverStatus ? "Armed" : "NotArmed";
         _stringBuilder.Replace("{warhead_status}", Properties.WarheadStatus[warheadStatus]);
         _stringBuilder.Replace("{detonation_time}",

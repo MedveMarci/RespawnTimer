@@ -5,6 +5,8 @@ using GameCore;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
+using Respawning;
+using Respawning.Waves;
 using UnityEngine;
 
 namespace RespawnTimer.API.Features;
@@ -49,24 +51,6 @@ public partial class TimerView
         var miniNtfTime = TimeSpan.FromSeconds(miniNtf?.Timer.TimeLeft ?? 0);
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
         {
-#if EXILED
-            switch (Respawn.NextKnownSpawnableFaction)
-            {
-                case SpawnableFaction.ChaosWave:
-                    ReplaceTime("s", TimeSpan.FromSeconds(CiOffset));
-                    break;
-                case SpawnableFaction.NtfWave:
-                    ReplaceTime("s", TimeSpan.FromSeconds(NtfOffset));
-                    break;
-                case SpawnableFaction.ChaosMiniWave:
-                    ReplaceTime("s", TimeSpan.FromSeconds(CiOffset));
-                    break;
-                case SpawnableFaction.NtfMiniWave:
-                    ReplaceTime("s", TimeSpan.FromSeconds(NtfOffset));
-                    break;
-                case SpawnableFaction.None:
-                    break;
-#else
             switch (WaveManager._nextWave)
             {
                 case ChaosSpawnWave:
@@ -81,7 +65,6 @@ public partial class TimerView
                 case NtfMiniWave:
                     ReplaceTime("s", TimeSpan.FromSeconds(NtfOffset));
                     break;
-#endif
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -122,30 +105,10 @@ public partial class TimerView
 
     private void SetSpawnableTeam()
     {
-#if EXILED
-        switch (Respawn.NextKnownSpawnableFaction)
-#else
         switch (WaveManager._nextWave)
-#endif
         {
             default:
                 return;
-#if EXILED
-            case SpawnableFaction.None:
-                break;
-            case SpawnableFaction.NtfWave:
-                _stringBuilder.Replace("{team}", !API.UiuSpawnable ? Properties.Ntf : Properties.Uiu);
-                break;
-            case SpawnableFaction.ChaosWave:
-                _stringBuilder.Replace("{team}", !API.SerpentsHandSpawnable ? Properties.Ci : Properties.Sh);
-                break;
-            case SpawnableFaction.NtfMiniWave:
-                _stringBuilder.Replace("{team}", !API.UiuSpawnable ? Properties.MiniNtf : Properties.Uiu);
-                break;
-            case SpawnableFaction.ChaosMiniWave:
-                _stringBuilder.Replace("{team}", !API.SerpentsHandSpawnable ? Properties.MiniCi : Properties.Sh);
-                break;
-#else
             case NtfSpawnWave:
                 _stringBuilder.Replace("{team}", Properties.Ntf);
                 break;
@@ -158,7 +121,6 @@ public partial class TimerView
             case ChaosMiniWave:
                 _stringBuilder.Replace("{team}", Properties.MiniCi);
                 break;
-#endif
         }
     }
 
@@ -171,14 +133,6 @@ public partial class TimerView
 
     private void SetWarheadStatus()
     {
-#if EXILED
-        var warheadStatus = Warhead.Status;
-        _stringBuilder.Replace("{warhead_status}", Properties.WarheadStatus[warheadStatus]);
-        _stringBuilder.Replace("{detonation_time}",
-            warheadStatus == WarheadStatus.InProgress
-                ? Mathf.Round(Warhead.DetonationTimer).ToString(CultureInfo.InvariantCulture)
-                : string.Empty);
-#else
         var warheadStatus = Warhead.IsDetonationInProgress ? Warhead.IsDetonated ? "Detonated" : "InProgress" :
             Warhead.LeverStatus ? "Armed" : "NotArmed";
         _stringBuilder.Replace("{warhead_status}", Properties.WarheadStatus[warheadStatus]);
@@ -186,7 +140,6 @@ public partial class TimerView
             warheadStatus == "InProgress"
                 ? Mathf.Round(Warhead.DetonationTime).ToString(CultureInfo.InvariantCulture)
                 : string.Empty);
-#endif
     }
 
     private void SetGeneratorCount()

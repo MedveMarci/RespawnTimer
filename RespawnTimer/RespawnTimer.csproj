@@ -15,18 +15,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp-firstpass" HintPath="/home/medvemarci/Asztal/Dev\Assembly-CSharp-firstpass.dll"/>
-        <Reference Include="Assembly-CSharp-Publicized" HintPath="/home/medvemarci/Asztal/Dev\Assembly-CSharp-Publicized.dll"/>
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_References)\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(EXILED_References)\Assembly-CSharp-Publicized.dll"/>
         <Reference Include="LabApi">
-          <HintPath>..\..\..\.local\share\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\LabApi.dll</HintPath>
+          <HintPath>D:\SteamLibrary\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\LabApi.dll</HintPath>
         </Reference>
-        <Reference Include="UnityEngine" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.dll"/>
-        <Reference Include="UnityEngine.CoreModule" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.CoreModule.dll"/>
-        <Reference Include="UnityEngine.PhysicsModule" HintPath="/home/medvemarci/Asztal/Dev\UnityEngine.PhysicsModule.dll"/>
-        <Reference Include="Mirror" HintPath="/home/medvemarci/Asztal/Dev\Mirror.dll"/>
-        <Reference Include="YamlDotNet" HintPath="/home/medvemarci/Asztal/Dev\YamlDotNet.dll"/>
-        <Reference Include="NorthwoodLib" HintPath="/home/medvemarci/Asztal/Dev\NorthwoodLib.dll" />
-        <Reference Include="CommandSystem.Core" HintPath="/home/medvemarci/Asztal/Dev\CommandSystem.Core.dll" />
+        <Reference Include="UnityEngine" HintPath="$(EXILED_References)\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_References)\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_References)\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="$(EXILED_References)\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="$(EXILED_References)\YamlDotNet.dll"/>
+        <Reference Include="NorthwoodLib" HintPath="$(EXILED_References)\NorthwoodLib.dll" />
+        <Reference Include="CommandSystem.Core" HintPath="$(EXILED_References)\CommandSystem.Core.dll" />
     </ItemGroup>
 
 </Project>

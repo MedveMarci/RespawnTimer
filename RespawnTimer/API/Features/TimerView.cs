@@ -1,6 +1,7 @@
 ﻿
 
 using System.Text;
+using GameCore;
 using Respawning;
 using RespawnTimer.Configs;
 using UnityEngine;
@@ -70,10 +71,12 @@ public partial class TimerView
 
     public static bool TryGetTimerForPlayer(Player player, out TimerView timerView)
     {
-        var groupName = !ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out var str) ? null : str;
+        var groupName = player.GroupName;
+        Logger.Debug($"Group name: {groupName}, " + player.Nickname + " " + player.ReferenceHub.serverRoles.Group);
+        //var groupName = !ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out var str) ? null : str;
 
         // Check by group name
-        if (groupName is not null && RespawnTimer.Singleton.Config!.Timers.TryGetValue(groupName, out var timerName))
+        if (RespawnTimer.Singleton.Config!.Timers.TryGetValue(groupName, out var timerName))
         {
             timerView = CachedTimers[timerName];
             return true;
@@ -102,7 +105,7 @@ public partial class TimerView
     {
         _stringBuilder.Clear();
         _stringBuilder.Append(
-            RespawnManager.CurrentSequence() is not (RespawnManager.RespawnSequencePhase.SelectingTeam or RespawnManager.RespawnSequencePhase.SpawningSelectedTeam)
+            WaveManager.State is not (WaveQueueState.WaveSpawning or WaveQueueState.WaveSpawned)
                 ? BeforeRespawnString
                 : DuringRespawnString);
         SetAllProperties(spectatorCount);

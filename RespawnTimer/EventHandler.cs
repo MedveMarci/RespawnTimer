@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameCore;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using MEC;
 using Respawning;
+using Respawning.Waves;
 using RespawnTimer.API.Features;
 
 namespace RespawnTimer;
@@ -64,17 +66,22 @@ public class EventHandler
         while (true)
         {
             yield return Timing.WaitForSeconds(1f);
-            if (RespawnManager.CurrentSequence() is RespawnManager.RespawnSequencePhase.SelectingTeam or RespawnManager.RespawnSequencePhase.SpawningSelectedTeam)
+            if (WaveManager.State is WaveQueueState.WaveSpawning or WaveQueueState.WaveSelected)
             {
-                switch (RespawnManager.Singleton.NextKnownTeam)
+                switch (WaveManager._nextWave)
                 {
-                    case SpawnableTeamType.ChaosInsurgency:
+                    case ChaosSpawnWave:
                         TimerView.CiOffset -= 1;
                         break;
-                    case SpawnableTeamType.NineTailedFox:
+                    case NtfSpawnWave:
                         TimerView.NtfOffset -= 1;
                         break;
-                    case SpawnableTeamType.None:
+                    case ChaosMiniWave:
+                        TimerView.CiOffset -= 1;
+                        break;
+                    case NtfMiniWave:
+                        TimerView.NtfOffset -= 1;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -95,7 +102,6 @@ public class EventHandler
                             "TimerView is null! Check if the Timers config is correct and the directory exists. If not delete the RespawnTimer folder and restart the server.");
                         continue;
                     }
-
                     var text = timerView.GetText(specNum);
                     player.SendHint(text, 1.25f);
                 }

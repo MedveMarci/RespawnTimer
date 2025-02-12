@@ -1,90 +1,48 @@
-﻿namespace RespawnTimerRuei;
-
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Net;
-#endif
-#if EXILED
+using LabApi.Features.Console;
+using LabApi.Loader.Features.Paths;
+using LabApi.Loader.Features.Plugins;
+using Version = System.Version;
+
+namespace RespawnTimerRuei;
 public class RespawnTimerRuei : Plugin<Configs.Config>
-#else
-public class RespawnTimerRuei
-#endif
 {
     public static RespawnTimerRuei Singleton;
-    public static string RespawnTimerDirectoryPath { get; private set; }
-#if NWAPI
-    [PluginConfig] public Configs.Config Config;
-#else
+    public static string RespawnTimerRueiDirectoryPath { get; private set; }
     private EventHandler _eventHandler;
-#endif
-#if EXILED
-    public override void OnEnabled()
-#else
-    [PluginPriority(LoadPriority.Lowest)]
-    [PluginEntryPoint("RespawnTimerRuei", "4.3.0", "RespawnTimerRuei", "MedveMarci")]
-    private void LoadPlugin()
-#endif
+    public override void Enable()
     {
-#if NWAPI
-        if (!Config.IsEnabled) return;
-#endif
+        LoadConfigs();
         Singleton = this;
-#if EXILED
-        RespawnTimerDirectoryPath = Path.Combine(Paths.Configs, "RespawnTimerRuei");
+        if (Singleton.Config == null)
+        {
+            Logger.Error("There is no config file!");
+            return;
+        }
+        RespawnTimerRueiDirectoryPath = Path.Combine(PathManager.Configs.FullName, "RespawnTimerRuei");
         _eventHandler = new EventHandler();
-#else
-        RespawnTimerDirectoryPath = PluginHandler.Get(this).PluginDirectoryPath;
-        EventManager.RegisterEvents<EventHandler>(this);
-#endif
-        if (!Directory.Exists(RespawnTimerDirectoryPath))
+        if (!Directory.Exists(RespawnTimerRueiDirectoryPath))
         {
-            Log.Info("RespawnTimerRuei directory does not exist. Creating...");
-            Directory.CreateDirectory(RespawnTimerDirectoryPath);
+            Logger.Info("RespawnTimerRuei directory does not exist. Creating...");
+            Directory.CreateDirectory(RespawnTimerRueiDirectoryPath);
         }
 
-        var exampleTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "ExampleTimerRuei");
+        var exampleTimerDirectory = Path.Combine(RespawnTimerRueiDirectoryPath, "ExampleTimerRuei");
         if (!Directory.Exists(exampleTimerDirectory)) DownloadExampleTimer(exampleTimerDirectory);
-        RueiHelper.Init();
-#if EXILED
-        Exiled.Events.Handlers.Map.Generated += _eventHandler.OnGenerated;
-        Exiled.Events.Handlers.Player.Dying += _eventHandler.OnDying;
-        Exiled.Events.Handlers.Server.ReloadedConfigs += OnReloaded;
-        ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
-        Exiled.Events.Handlers.Player.Verified += EventHandler.OnVerified;
-        Exiled.Events.Handlers.Server.RespawnedTeam += EventHandler.OnRespawnedTeam;
-        foreach (var plugin in Loader.Plugins)
-        {
-            switch (plugin.Name)
-            {
-                case "Serpents Hand" when plugin.Config.IsEnabled:
-                    API.API.SerpentsHandTeam.Init(plugin.Assembly);
-                    Log.Debug("Serpents Hand plugin detected!");
-                    break;
-                case "UIURescueSquad" when plugin.Config.IsEnabled:
-                    API.API.UiuTeam.Init(plugin.Assembly);
-                    Log.Debug("UIURescueSquad plugin detected!");
-                    break;
-            }
-        }
+        LabApi.Events.Handlers.ServerEvents.MapGenerated += _eventHandler.OnGenerated;
+        LabApi.Events.Handlers.PlayerEvents.Dying += _eventHandler.OnDying;
+        //ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
+        LabApi.Events.Handlers.ServerEvents.WaveRespawned += EventHandler.OnRespawnedTeam;
 
-        var header = new HeaderSetting(Config.SettingHeaderLabel);
+        /*var header = new HeaderSetting(Config.SettingHeaderLabel);
         IEnumerable<SettingBase> settingBases = new SettingBase[]
         {
             header, new TwoButtonsSetting(1, "Visibility", "Show", "Hide", false, "Hide/Show the Timer"),
         };
         SettingBase.Register(settingBases);
-        SettingBase.SendToAll();
-        if (!Config.ReloadTimerEachRound) OnReloaded();
-        base.OnEnabled();
-#else
-        ServerSpecificSettingsSync.DefinedSettings = new ServerSpecificSettingBase[]
-        {
-            new SSGroupHeader(Singleton.Config.SettingHeaderLabel),
-            new SSTwoButtonsSetting(1, "Visibility", "Show", "Hide", false, "Hide/Show the Timer")
-        };
-        ServerSpecificSettingsSync.SendToAll();
-        ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
-#endif
+        SettingBase.SendToAll();*/
     }
 
     private void DownloadExampleTimer(string exampleTimerDirectory)
@@ -92,13 +50,8 @@ public class RespawnTimerRuei
         var exampleTimerZip = exampleTimerDirectory + ".zip";
         var exampleTimerTemp = exampleTimerDirectory + "_Temp";
         using WebClient client = new();
-        Log.Info("Downloading ExampleTimerRuei.zip...");
-#if EXILED
-        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{Version}/ExampleTimerRuei.zip";
-#else
-        var url =
-            $"https://github.com/MedveMarci/RespawnTimer/releases/download/v{PluginHandler.Get(this).PluginVersion}/ExampleTimerRuei.zip";
-#endif
+        Logger.Info("Downloading ExampleTimerRuei.zip...");
+        var url = $"https://github.com/MedveMarci/RespawnTimerRuei/releases/download/v{Version}/ExampleTimerRuei.zip";
         try
         {
             client.DownloadFile(url, exampleTimerZip);
@@ -106,50 +59,32 @@ public class RespawnTimerRuei
         catch (WebException e)
         {
             if (e.Response is HttpWebResponse response)
-                Log.Error(
+                Logger.Error(
                     $"Error while downloading ExampleTimerRuei.zip: {(int)response.StatusCode} {response.StatusCode}");
             return;
         }
 
-        Log.Info("ExampleTimerRuei.zip has been downloaded!");
-        Log.Info("Extracting...");
+        Logger.Info("ExampleTimerRuei.zip has been downloaded!");
+        Logger.Info("Extracting...");
         ZipFile.ExtractToDirectory(exampleTimerZip, exampleTimerTemp);
         Directory.Move(Path.Combine(exampleTimerTemp, "ExampleTimerRuei"), exampleTimerDirectory);
         Directory.Delete(exampleTimerTemp);
         File.Delete(exampleTimerZip);
-        Log.Info("Done!");
+        Logger.Info("Done!");
     }
 
-#if EXILED
-    public override void OnDisabled()
+    public override void Disable()
     {
-        Exiled.Events.Handlers.Map.Generated -= _eventHandler.OnGenerated;
-        Exiled.Events.Handlers.Player.Dying -= _eventHandler.OnDying;
-        Exiled.Events.Handlers.Server.ReloadedConfigs -= OnReloaded;
-        ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
-        Exiled.Events.Handlers.Player.Verified -= EventHandler.OnVerified;
-        Exiled.Events.Handlers.Server.RespawnedTeam -= EventHandler.OnRespawnedTeam;
+        LabApi.Events.Handlers.ServerEvents.MapGenerated -= _eventHandler.OnGenerated;
+        LabApi.Events.Handlers.PlayerEvents.Dying -= _eventHandler.OnDying;
+        //ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
+        LabApi.Events.Handlers.ServerEvents.WaveRespawned -= EventHandler.OnRespawnedTeam;
         _eventHandler = null;
         Singleton = null;
-        base.OnDisabled();
     }
-
-    public override void OnReloaded()
-    {
-        if (Config.Timers.IsEmpty())
-        {
-            Log.Error("Timer list is empty!");
-            return;
-        }
-
-        TimerView.CachedTimers.Clear();
-        foreach (var name in Config.Timers.Values) TimerView.AddTimer(name);
-    }
-
     public override string Name => "RespawnTimerRuei";
     public override string Author => "MedveMarci";
-    public override Version Version => new(4, 3, 0);
-    public override Version RequiredExiledVersion => new(9, 5, 0);
-    public override PluginPriority Priority => PluginPriority.Last;
-#endif
+    public override string Description { get; } = "A simple Respawn Timer plugin for RueI framework.";
+    public override Version Version { get; } = new(4, 4, 0);
+    public override Version RequiredApiVersion { get; } = new(0, 4, 0);
 }

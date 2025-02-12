@@ -71,9 +71,7 @@ public partial class TimerView
 
     public static bool TryGetTimerForPlayer(Player player, out TimerView timerView)
     {
-        var groupName = player.GroupName;
-        Logger.Debug($"Group name: {groupName}, " + player.Nickname + " " + player.ReferenceHub.serverRoles.Group);
-        //var groupName = !ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out var str) ? null : str;
+        var groupName = ServerStatic.PermissionsHandler.GetUserGroup(player.UserId)?.BadgeText ?? string.Empty;
 
         // Check by group name
         if (RespawnTimer.Singleton.Config!.Timers.TryGetValue(groupName, out var timerName))

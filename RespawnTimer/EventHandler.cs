@@ -91,7 +91,7 @@ public class EventHandler
             {
                 try
                 {
-                    if (player == null || player.IsAlive) continue;
+                    if (player == null || player.IsAlive || player.IsServer) continue;
                     if (player.IsOverwatchEnabled && RespawnTimer.Singleton.Config.HideTimerForOverwatch) continue;
                     if (API.API.TimerHidden.Contains(player.UserId)) continue;
                     if (_playerDeathDictionary.ContainsKey(player)) continue;

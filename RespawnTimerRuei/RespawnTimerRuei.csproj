@@ -15,18 +15,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_References)\Assembly-CSharp-firstpass.dll"/>
-        <Reference Include="Assembly-CSharp-Publicized" HintPath="$(EXILED_References)\Assembly-CSharp-Publicized.dll"/>
-        <Reference Include="LabApi">
-            <HintPath>D:\SteamLibrary\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\LabApi.dll</HintPath>
+        <Reference Include="Assembly-CSharp">
+          <HintPath>..\..\..\Desktop\Asztal\LabAPI\Assembly-CSharp-Publicized.dll</HintPath>
         </Reference>
-        <Reference Include="UnityEngine" HintPath="$(EXILED_References)\UnityEngine.dll"/>
-        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_References)\UnityEngine.CoreModule.dll"/>
-        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(EXILED_References)\UnityEngine.PhysicsModule.dll"/>
-        <Reference Include="Mirror" HintPath="$(EXILED_References)\Mirror.dll"/>
-        <Reference Include="YamlDotNet" HintPath="$(EXILED_References)\YamlDotNet.dll"/>
-        <Reference Include="NorthwoodLib" HintPath="$(EXILED_References)\NorthwoodLib.dll" />
-        <Reference Include="CommandSystem.Core" HintPath="$(EXILED_References)\CommandSystem.Core.dll" />
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_References)\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="LabApi">
+            <HintPath>$(SL_References)\LabApi.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine" HintPath="$(SL_References)\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(SL_References)\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(SL_References)\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="$(SL_References)\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="$(SL_References)\YamlDotNet.dll"/>
+        <Reference Include="NorthwoodLib" HintPath="$(SL_References)\NorthwoodLib.dll" />
+        <Reference Include="CommandSystem.Core" HintPath="$(SL_References)\CommandSystem.Core.dll" />
     </ItemGroup>
 
     <ItemGroup>

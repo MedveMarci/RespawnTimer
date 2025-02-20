@@ -1,30 +1,27 @@
-﻿using GameCore;
-using LabApi.Features.Console;
-using LabApi.Features.Wrappers;
-
-namespace RespawnTimerRuei;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MEC;
-using API.Features;
-using RueI.Displays;
-using RueI.Elements;
+using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
+using LabApi.Loader;
 using Respawning;
 using Respawning.Waves;
+using RespawnTimerRuei.API.Features;
+using RueI.Displays;
+using RueI.Elements;
+
+namespace RespawnTimerRuei;
 
 public class RueiHelper
 {
-    public readonly Dictionary<Player, CoroutineHandle> PlayerDeathDictionary = new(50);
     public static bool IsActive { get; set; }
     public AutoElement RespawnTimerElement { set; get; }
 
     public static void Init()
     {
         IEnumerable<Assembly> assemblies =
-            LabApi.Loader.PluginLoader.Dependencies;
+            PluginLoader.Dependencies;
         var assembly = assemblies.FirstOrDefault(x => x.GetName().Name == "RueI");
         if (assembly == null) return;
         var init = assembly.GetType("RueI.RueIMain")?.GetMethod("EnsureInit");
@@ -50,7 +47,6 @@ public class RueiHelper
     private string GetTimers(DisplayCore core)
     {
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-        {
             switch (WaveManager._nextWave)
             {
                 case ChaosSpawnWave:
@@ -68,7 +64,6 @@ public class RueiHelper
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
 
         var player = Player.Get(core.Hub);
         var specNum = Player.List.Count(x => !x.IsAlive);
@@ -77,9 +72,10 @@ public class RueiHelper
             Logger.Debug("Player is alive");
             return "";
         }
+
         if (player.IsOverwatchEnabled && RespawnTimerRuei.Singleton.Config!.HideTimerForOverwatch) return "";
         if (API.API.TimerHidden.Contains(player.UserId)) return "";
-        if (PlayerDeathDictionary.ContainsKey(player)) return "";
+        if (EventHandler._playerDeathDictionary.ContainsKey(player)) return "";
         if (!TimerView.TryGetTimerForPlayer(player, out var timerView)) return "";
         if (timerView == null)
         {

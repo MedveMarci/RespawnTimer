@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+
 namespace RespawnTimerRuei.Configs;
 
 public sealed class Properties
@@ -48,20 +49,20 @@ public sealed class Properties
         }
     };
 #else
-        public Dictionary<string, string> WarheadStatus { get; private set; } = new()
+    public Dictionary<string, string> WarheadStatus { get; private set; } = new()
+    {
         {
-            {
-                "NotArmed", "<color=green>Unarmed</color>"
-            },
-            {
-                "Armed", "<color=orange>Armed</color>"
-            },
-            {
-                "InProgress", "<color=red>In Progress - </color> {detonation_time} s"
-            },
-            {
-                "Detonated", "<color=#640000>Detonated</color>"
-            },
-        };
+            "NotArmed", "<color=green>Unarmed</color>"
+        },
+        {
+            "Armed", "<color=orange>Armed</color>"
+        },
+        {
+            "InProgress", "<color=red>In Progress - </color> {detonation_time} s"
+        },
+        {
+            "Detonated", "<color=#640000>Detonated</color>"
+        }
+    };
 #endif
 }

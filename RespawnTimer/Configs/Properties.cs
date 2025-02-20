@@ -1,7 +1,7 @@
-﻿namespace RespawnTimer.Configs;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+
+namespace RespawnTimer.Configs;
 
 public sealed class Properties
 {
@@ -19,7 +19,7 @@ public sealed class Properties
 
     [Description("The Chaos Insurgency display name.")]
     public string Ci { get; private set; } = "<color=green>Chaos Insurgency</color>";
-        
+
     [Description("The Mini Nine-Tailed Fox display name.")]
     public string MiniNtf { get; private set; } = "<color=blue>Mini Nine-Tailed Fox</color>";
 
@@ -40,6 +40,6 @@ public sealed class Properties
         },
         {
             "Detonated", "<color=#640000>Detonated</color>"
-        },
+        }
     };
 }

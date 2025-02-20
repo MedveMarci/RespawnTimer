@@ -1,17 +1,26 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Net;
+using LabApi.Events.Handlers;
 using LabApi.Features.Console;
 using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
+using RespawnTimerRuei.Configs;
 using Version = System.Version;
 
 namespace RespawnTimerRuei;
-public class RespawnTimerRuei : Plugin<Configs.Config>
+
+public class RespawnTimerRuei : Plugin<Config>
 {
     public static RespawnTimerRuei Singleton;
-    public static string RespawnTimerRueiDirectoryPath { get; private set; }
     private EventHandler _eventHandler;
+    public static string RespawnTimerRueiDirectoryPath { get; private set; }
+    public override string Name => "RespawnTimerRuei";
+    public override string Author => "MedveMarci";
+    public override string Description { get; } = "A simple Respawn Timer plugin for RueI framework.";
+    public override Version Version { get; } = new(4, 4, 0);
+    public override Version RequiredApiVersion { get; } = new(0, 4, 0);
+
     public override void Enable()
     {
         LoadConfigs();
@@ -21,6 +30,7 @@ public class RespawnTimerRuei : Plugin<Configs.Config>
             Logger.Error("There is no config file!");
             return;
         }
+
         RespawnTimerRueiDirectoryPath = Path.Combine(PathManager.Configs.FullName, "RespawnTimerRuei");
         _eventHandler = new EventHandler();
         if (!Directory.Exists(RespawnTimerRueiDirectoryPath))
@@ -31,10 +41,10 @@ public class RespawnTimerRuei : Plugin<Configs.Config>
 
         var exampleTimerDirectory = Path.Combine(RespawnTimerRueiDirectoryPath, "ExampleTimerRuei");
         if (!Directory.Exists(exampleTimerDirectory)) DownloadExampleTimer(exampleTimerDirectory);
-        LabApi.Events.Handlers.ServerEvents.MapGenerated += _eventHandler.OnGenerated;
-        LabApi.Events.Handlers.PlayerEvents.Dying += _eventHandler.OnDying;
+        ServerEvents.MapGenerated += _eventHandler.OnGenerated;
+        PlayerEvents.Dying += _eventHandler.OnDying;
         //ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
-        LabApi.Events.Handlers.ServerEvents.WaveRespawned += EventHandler.OnRespawnedTeam;
+        ServerEvents.WaveRespawned += EventHandler.OnRespawnedTeam;
 
         /*var header = new HeaderSetting(Config.SettingHeaderLabel);
         IEnumerable<SettingBase> settingBases = new SettingBase[]
@@ -43,6 +53,7 @@ public class RespawnTimerRuei : Plugin<Configs.Config>
         };
         SettingBase.Register(settingBases);
         SettingBase.SendToAll();*/
+        RueiHelper.Init();
     }
 
     private void DownloadExampleTimer(string exampleTimerDirectory)
@@ -75,16 +86,11 @@ public class RespawnTimerRuei : Plugin<Configs.Config>
 
     public override void Disable()
     {
-        LabApi.Events.Handlers.ServerEvents.MapGenerated -= _eventHandler.OnGenerated;
-        LabApi.Events.Handlers.PlayerEvents.Dying -= _eventHandler.OnDying;
+        ServerEvents.MapGenerated -= _eventHandler.OnGenerated;
+        PlayerEvents.Dying -= _eventHandler.OnDying;
         //ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
-        LabApi.Events.Handlers.ServerEvents.WaveRespawned -= EventHandler.OnRespawnedTeam;
+        ServerEvents.WaveRespawned -= EventHandler.OnRespawnedTeam;
         _eventHandler = null;
         Singleton = null;
     }
-    public override string Name => "RespawnTimerRuei";
-    public override string Author => "MedveMarci";
-    public override string Description { get; } = "A simple Respawn Timer plugin for RueI framework.";
-    public override Version Version { get; } = new(4, 4, 0);
-    public override Version RequiredApiVersion { get; } = new(0, 4, 0);
 }

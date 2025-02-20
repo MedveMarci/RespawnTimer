@@ -1,23 +1,40 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using LabApi.Features.Wrappers;
 using Respawning;
 using RespawnTimerRuei.Configs;
+using Serialization;
 using UnityEngine;
+using Logger = LabApi.Features.Console.Logger;
 
 namespace RespawnTimerRuei.API.Features;
-
-using System.Collections.Generic;
-using System.IO;
-using LabApi.Features.Console;
-using LabApi.Features.Wrappers;
-using Serialization;
 
 public partial class TimerView
 {
     public static readonly Dictionary<string, TimerView> CachedTimers = new();
 
+    private readonly StringBuilder _stringBuilder = new(1024);
+
+    private TimerView(string beforeRespawnString, string duringRespawnString, Properties properties, List<string> hints)
+    {
+        BeforeRespawnString = beforeRespawnString;
+        DuringRespawnString = duringRespawnString;
+        Properties = properties;
+        Hints = hints;
+    }
+
     private int HintIndex { get; set; }
 
     private int HintInterval { get; set; }
+
+    private string BeforeRespawnString { get; }
+
+    private string DuringRespawnString { get; }
+
+    private Properties Properties { get; }
+
+    private List<string> Hints { get; }
 
     public static void AddTimer(string name)
     {
@@ -126,22 +143,4 @@ public partial class TimerView
         if (Hints.Count == HintIndex)
             HintIndex = 0;
     }
-
-    private TimerView(string beforeRespawnString, string duringRespawnString, Properties properties, List<string> hints)
-    {
-        BeforeRespawnString = beforeRespawnString;
-        DuringRespawnString = duringRespawnString;
-        Properties = properties;
-        Hints = hints;
-    }
-
-    private string BeforeRespawnString { get; }
-
-    private string DuringRespawnString { get; }
-
-    private Properties Properties { get; }
-
-    private List<string> Hints { get; }
-
-    private readonly StringBuilder _stringBuilder = new(1024);
 }

@@ -50,7 +50,6 @@ public partial class TimerView
         var miniCiTime = TimeSpan.FromSeconds(miniCi?.Timer.TimeLeft ?? 0);
         var miniNtfTime = TimeSpan.FromSeconds(miniNtf?.Timer.TimeLeft ?? 0);
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-        {
             switch (WaveManager._nextWave)
             {
                 case ChaosSpawnWave:
@@ -68,7 +67,6 @@ public partial class TimerView
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
 
         if (ciTime >= TimeSpan.Zero)
             ReplaceTime("c", ciTime);

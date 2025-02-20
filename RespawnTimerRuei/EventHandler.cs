@@ -1,16 +1,18 @@
-﻿namespace RespawnTimerRuei;
-
-using System.Collections.Generic;
-using MEC;
-using API.Features;
+﻿using System.Collections.Generic;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
+using MEC;
+using RespawnTimerRuei.API.Features;
+
+namespace RespawnTimerRuei;
 
 public class EventHandler
 {
+    public static readonly Dictionary<Player, CoroutineHandle> _playerDeathDictionary = new(25);
     private readonly RueiHelper _rueiHelper = new();
+
     internal void OnGenerated(MapGeneratedEventArgs ev)
     {
         if (_rueiHelper.RespawnTimerElement == null)
@@ -18,6 +20,7 @@ public class EventHandler
             Timing.RunCoroutine(HintsCoroutine());
             _rueiHelper.RegisterElement();
         }
+
         if (RespawnTimerRuei.Singleton.Config!.Timers.IsEmpty())
         {
             Logger.Error("Timer list is empty!");
@@ -51,8 +54,7 @@ public class EventHandler
             if (RoundSummary.singleton._roundEnded) break;
         }
     }
-    
-    private readonly Dictionary<Player, CoroutineHandle> _playerDeathDictionary = new(25);
+
 /*#if EXILED
     internal static void OnVerified(VerifiedEventArgs ev)
     {

@@ -18,15 +18,15 @@
         <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_References)\Assembly-CSharp-firstpass.dll"/>
         <Reference Include="Assembly-CSharp-Publicized" HintPath="$(SL_References)\Assembly-CSharp-Publicized.dll"/>
         <Reference Include="LabApi">
-          <HintPath>$(SL_References)\LabApi.dll</HintPath>
+            <HintPath>$(SL_References)\LabApi.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine" HintPath="$(SL_References)\UnityEngine.dll"/>
         <Reference Include="UnityEngine.CoreModule" HintPath="$(SL_References)\UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(SL_References)\UnityEngine.PhysicsModule.dll"/>
         <Reference Include="Mirror" HintPath="$(SL_References)\Mirror.dll"/>
         <Reference Include="YamlDotNet" HintPath="$(SL_References)\YamlDotNet.dll"/>
-        <Reference Include="NorthwoodLib" HintPath="$(SL_References)\NorthwoodLib.dll" />
-        <Reference Include="CommandSystem.Core" HintPath="$(SL_References)\CommandSystem.Core.dll" />
+        <Reference Include="NorthwoodLib" HintPath="$(SL_References)\NorthwoodLib.dll"/>
+        <Reference Include="CommandSystem.Core" HintPath="$(SL_References)\CommandSystem.Core.dll"/>
     </ItemGroup>
 
 </Project>

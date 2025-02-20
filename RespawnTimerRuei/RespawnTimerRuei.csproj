@@ -16,7 +16,7 @@
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
-          <HintPath>..\..\..\Desktop\Asztal\LabAPI\Assembly-CSharp-Publicized.dll</HintPath>
+            <HintPath>..\..\..\Desktop\Asztal\LabAPI\Assembly-CSharp-Publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_References)\Assembly-CSharp-firstpass.dll"/>
         <Reference Include="LabApi">
@@ -27,12 +27,12 @@
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(SL_References)\UnityEngine.PhysicsModule.dll"/>
         <Reference Include="Mirror" HintPath="$(SL_References)\Mirror.dll"/>
         <Reference Include="YamlDotNet" HintPath="$(SL_References)\YamlDotNet.dll"/>
-        <Reference Include="NorthwoodLib" HintPath="$(SL_References)\NorthwoodLib.dll" />
-        <Reference Include="CommandSystem.Core" HintPath="$(SL_References)\CommandSystem.Core.dll" />
+        <Reference Include="NorthwoodLib" HintPath="$(SL_References)\NorthwoodLib.dll"/>
+        <Reference Include="CommandSystem.Core" HintPath="$(SL_References)\CommandSystem.Core.dll"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="RueI" Version="2.1.1" />
+        <PackageReference Include="RueI" Version="2.1.1"/>
     </ItemGroup>
 
 </Project>

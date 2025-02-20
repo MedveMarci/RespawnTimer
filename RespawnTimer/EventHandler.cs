@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameCore;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Console;
@@ -15,8 +14,10 @@ namespace RespawnTimer;
 
 public class EventHandler
 {
-    private CoroutineHandle _timerCoroutine;
+    private readonly Dictionary<Player, CoroutineHandle> _playerDeathDictionary = new(25);
     private CoroutineHandle _hintsCoroutine;
+    private CoroutineHandle _timerCoroutine;
+
     internal void OnGenerated(MapGeneratedEventArgs ev)
     {
         if (RespawnTimer.Singleton.Config!.Timers.IsEmpty())
@@ -67,7 +68,6 @@ public class EventHandler
         {
             yield return Timing.WaitForSeconds(1f);
             if (WaveManager.State is WaveQueueState.WaveSpawning or WaveQueueState.WaveSelected)
-            {
                 switch (WaveManager._nextWave)
                 {
                     case ChaosSpawnWave:
@@ -85,10 +85,9 @@ public class EventHandler
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            }
+
             var specNum = Player.List.Count(x => !x.IsAlive);
             foreach (var player in Player.List)
-            {
                 try
                 {
                     if (player == null || player.IsAlive || player.IsServer) continue;
@@ -102,6 +101,7 @@ public class EventHandler
                             "TimerView is null! Check if the Timers config is correct and the directory exists. If not delete the RespawnTimer folder and restart the server.");
                         continue;
                     }
+
                     var text = timerView.GetText(specNum);
                     player.SendHint(text, 1.25f);
                 }
@@ -109,7 +109,6 @@ public class EventHandler
                 {
                     Logger.Error(e.ToString());
                 }
-            }
 
             if (RoundSummary.singleton._roundEnded) break;
         }
@@ -125,7 +124,6 @@ public class EventHandler
         }
     }
 
-    private readonly Dictionary<Player, CoroutineHandle> _playerDeathDictionary = new(25);
 /*if EXILED
     internal static void OnVerified(VerifiedEventArgs ev)
     {

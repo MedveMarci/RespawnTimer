@@ -1,17 +1,26 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Net;
+using LabApi.Events.Handlers;
 using LabApi.Features.Console;
 using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
+using RespawnTimer.Configs;
 using Version = System.Version;
 
 namespace RespawnTimer;
-public class RespawnTimer : Plugin<Configs.Config>
+
+public class RespawnTimer : Plugin<Config>
 {
     public static RespawnTimer Singleton;
-    public static string RespawnTimerDirectoryPath { get; private set; }
     private EventHandler _eventHandler;
+    public static string RespawnTimerDirectoryPath { get; private set; }
+    public override string Name => "RespawnTimer";
+    public override string Author => "MedveMarci";
+    public override string Description { get; } = "A simple Respawn Timer plugin.";
+    public override Version Version { get; } = new(4, 4, 0);
+    public override Version RequiredApiVersion { get; } = new(0, 4, 0);
+
     public override void Enable()
     {
         LoadConfigs();
@@ -21,6 +30,7 @@ public class RespawnTimer : Plugin<Configs.Config>
             Logger.Error("There is no config file!");
             return;
         }
+
         RespawnTimerDirectoryPath = Path.Combine(PathManager.Configs.FullName, "RespawnTimer");
         _eventHandler = new EventHandler();
         if (!Directory.Exists(RespawnTimerDirectoryPath))
@@ -31,11 +41,11 @@ public class RespawnTimer : Plugin<Configs.Config>
 
         var exampleTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "ExampleTimer");
         if (!Directory.Exists(exampleTimerDirectory)) DownloadExampleTimer(exampleTimerDirectory);
-        LabApi.Events.Handlers.ServerEvents.MapGenerated += _eventHandler.OnGenerated;
-        LabApi.Events.Handlers.ServerEvents.RoundStarted += _eventHandler.OnRoundStart;
-        LabApi.Events.Handlers.PlayerEvents.Dying += _eventHandler.OnDying;
+        ServerEvents.MapGenerated += _eventHandler.OnGenerated;
+        ServerEvents.RoundStarted += _eventHandler.OnRoundStart;
+        PlayerEvents.Dying += _eventHandler.OnDying;
         //ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
-        LabApi.Events.Handlers.ServerEvents.WaveRespawned += EventHandler.OnRespawnedTeam;
+        ServerEvents.WaveRespawned += EventHandler.OnRespawnedTeam;
 
         /*var header = new HeaderSetting(Config.SettingHeaderLabel);
         IEnumerable<SettingBase> settingBases = new SettingBase[]
@@ -76,17 +86,12 @@ public class RespawnTimer : Plugin<Configs.Config>
 
     public override void Disable()
     {
-        LabApi.Events.Handlers.ServerEvents.MapGenerated -= _eventHandler.OnGenerated;
-        LabApi.Events.Handlers.ServerEvents.RoundStarted -= _eventHandler.OnRoundStart;
-        LabApi.Events.Handlers.PlayerEvents.Dying -= _eventHandler.OnDying;
+        ServerEvents.MapGenerated -= _eventHandler.OnGenerated;
+        ServerEvents.RoundStarted -= _eventHandler.OnRoundStart;
+        PlayerEvents.Dying -= _eventHandler.OnDying;
         //ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
-        LabApi.Events.Handlers.ServerEvents.WaveRespawned -= EventHandler.OnRespawnedTeam;
+        ServerEvents.WaveRespawned -= EventHandler.OnRespawnedTeam;
         _eventHandler = null;
         Singleton = null;
     }
-    public override string Name => "RespawnTimer";
-    public override string Author => "MedveMarci";
-    public override string Description { get; } = "A simple Respawn Timer plugin.";
-    public override Version Version { get; } = new Version(4, 4, 0);
-    public override Version RequiredApiVersion { get; } = new(0, 4, 0);
 }

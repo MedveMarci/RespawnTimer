@@ -1,7 +1,7 @@
-﻿namespace RespawnTimerRuei.Configs;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+
+namespace RespawnTimerRuei.Configs;
 
 public sealed class Config
 {
@@ -15,7 +15,7 @@ public sealed class Config
     {
         {
             "default", "ExampleTimerRuei"
-        },
+        }
     };
 
     [Description("Whether the timer should be hidden for players in overwatch.")]

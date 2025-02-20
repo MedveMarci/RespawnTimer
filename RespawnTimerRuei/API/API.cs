@@ -1,13 +1,13 @@
-﻿namespace RespawnTimerRuei.API
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+namespace RespawnTimerRuei.API;
 #if EXILED
     using Features.ExternalTeams;
 #endif
 
-    public static class API
-    {
-        public static List<string> TimerHidden { get; } = new();
+public static class API
+{
+    public static List<string> TimerHidden { get; } = new();
 
 #if EXILED
         public static bool SerpentsHandSpawnable => SerpentsHandTeam.IsSpawnable;
@@ -17,5 +17,4 @@
         internal static readonly ExternalTeamChecker SerpentsHandTeam = new SerpentsHandTeam();
         internal static readonly ExternalTeamChecker UiuTeam = new UiuTeam();
 #endif
-    }
 }

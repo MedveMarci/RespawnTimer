@@ -44,7 +44,7 @@ public class EventHandler
             Logger.Error(e.ToString());
         }
 
-        Logger.Debug("RespawnTimer coroutine started successfully!", RespawnTimer.Singleton.Config!.Debug);
+        Logger.Debug("RespawnTimer coroutine started successfully!");
     }
 
     internal void OnDying(PlayerDyingEventArgs ev)

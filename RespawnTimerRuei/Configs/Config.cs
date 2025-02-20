@@ -5,12 +5,6 @@ namespace RespawnTimerRuei.Configs;
 
 public sealed class Config
 {
-    [Description("Whether the plugin is enabled.")]
-    public bool IsEnabled { get; set; } = true;
-
-    [Description("Whether debug messages shoul be shown in a server console.")]
-    public bool Debug { get; set; } = false;
-
     public Dictionary<string, string> Timers { get; private set; } = new()
     {
         {

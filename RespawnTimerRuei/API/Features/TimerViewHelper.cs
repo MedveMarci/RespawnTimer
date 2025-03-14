@@ -30,6 +30,9 @@ public partial class TimerView
 
     private void SetRoundTime()
     {
+        var hours = RoundStart.RoundLength.Hours;
+        _stringBuilder.Replace("{round_hours}",
+            $"{(Properties.LeadingZeros && hours < 10 ? "0" : string.Empty)}{hours}");
         var minutes = RoundStart.RoundLength.Minutes;
         _stringBuilder.Replace("{round_minutes}",
             $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");

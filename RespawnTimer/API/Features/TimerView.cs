@@ -72,12 +72,12 @@ public partial class TimerView
         var hintsPath = Path.Combine(directoryPath, "Hints.txt");
         List<string> hints = new();
         if (File.Exists(hintsPath))
-            hints.AddRange(File.ReadAllLines(hintsPath));
+            hints.AddRange(File.ReadAllLines(hintsPath, Encoding.UTF8));
 
         TimerView timerView = new(
-            File.ReadAllText(timerBeforePath),
-            File.ReadAllText(timerDuringPath),
-            YamlParser.Deserializer.Deserialize<Properties>(File.ReadAllText(propertiesPath)),
+            File.ReadAllText(timerBeforePath, Encoding.UTF8),
+            File.ReadAllText(timerDuringPath, Encoding.UTF8),
+            YamlParser.Deserializer.Deserialize<Properties>(File.ReadAllText(propertiesPath, Encoding.UTF8)),
             hints);
 
         CachedTimers.Add(name, timerView);

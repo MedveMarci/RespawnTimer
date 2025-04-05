@@ -121,8 +121,9 @@ public partial class TimerView
 
         void ReplaceTime(string placeholder, TimeSpan time)
         {
-            var minutes = (int)time.TotalSeconds / 60;
-            var seconds = (int)Math.Round(time.TotalSeconds % 60);
+            var totalSeconds = Math.Max(0, (int)time.TotalSeconds);
+            var minutes = totalSeconds / 60;
+            var seconds = totalSeconds % 60;
             _stringBuilder.Replace($"{{{placeholder}minutes}}",
                 $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
             _stringBuilder.Replace($"{{{placeholder}seconds}}",

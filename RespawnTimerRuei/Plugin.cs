@@ -36,7 +36,7 @@ public class RespawnTimerRuei
     public override void OnEnabled()
 #else
     [PluginPriority(LoadPriority.Lowest)]
-    [PluginEntryPoint("RespawnTimerRuei", "4.3.0", "RespawnTimerRuei", "MedveMarci")]
+    [PluginEntryPoint("RespawnTimerRuei", "4.3.1", "RespawnTimerRuei", "MedveMarci")]
     private void LoadPlugin()
 #endif
     {
@@ -163,8 +163,8 @@ public class RespawnTimerRuei
 
     public override string Name => "RespawnTimerRuei";
     public override string Author => "MedveMarci";
-    public override Version Version => new(4, 3, 0);
-    public override Version RequiredExiledVersion => new(9, 5, 0);
+    public override Version Version => new(4, 3, 1);
+    public override Version RequiredExiledVersion => new(9, 5, 1);
     public override PluginPriority Priority => PluginPriority.Last;
 #endif
 }

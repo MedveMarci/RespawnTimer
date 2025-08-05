@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>RespawnTimer</AssemblyName>
+        <RootNamespace>RespawnTimer</RootNamespace>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Optimize>true</Optimize>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Platforms>x64</Platforms>
+        <Configurations>Release;Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+      <DefineConstants>TRACE;DEBUG</DefineConstants>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+      <DefineConstants>TRACE;RELEASE</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp" HintPath="$(sl_REFERENCES)\Assembly-CSharp-Publicized.dll"/>
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(sl_REFERENCES)\Assembly-CSharp-firstpass.dll"/>
+        <Reference Include="CommandSystem.Core" HintPath="$(sl_REFERENCES)\CommandSystem.Core.dll"/>
+        <Reference Include="HintServiceMeow" HintPath="$(labapi_plugins)\HintServiceMeow-LabAPI.dll"/>
+        <Reference Include="UnityEngine" HintPath="$(sl_REFERENCES)\UnityEngine.dll"/>
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(sl_REFERENCES)\UnityEngine.CoreModule.dll"/>
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(sl_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
+        <Reference Include="Mirror" HintPath="$(sl_REFERENCES)\Mirror.dll"/>
+        <Reference Include="YamlDotNet" HintPath="$(sl_REFERENCES)\YamlDotNet.dll"/>
+        <Reference Include="LabApi" HintPath="$(sl_references)\LabApi.dll"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'PluginosPlus' ">
+        <Reference Include="CustomRespawnWaves" HintPath="$(labapi_plugins)\CustomRespawnWaves.dll"/>
+        <Reference Include="SerpentsHand" HintPath="$(labapi_plugins)\SerpentsHand.dll"/>
+        <Reference Include="NorthwoodLib" HintPath="$(sl_REFERENCES)\NorthwoodLib.dll"/>
+        <Reference Include="CommandSystem.Core" HintPath="$(sl_REFERENCES)\CommandSystem.Core.dll"/>
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;%appdata%\SCP Secret Laboratory\LabAPI\plugins\global\&quot; /y"/>
+    </Target>
+
+</Project>

@@ -11,5 +11,10 @@ A SCP: Secret Laboratory LabApi plugin that shows when the next respawn wave wil
 # Configuration
 When you first install the plugin, the `DefaultTimer` folder will be automatically downloaded. You are free to edit the config files inside this directory as you see fit. You can change how the timer looks like, hints etc. Removing `DefaultTimer` folder will redownload it once again after server restart.
 
+# For Support
+<div align="left">
+<a href='https://discord.gg/5StRGu8EJV'><img src='https://www.allkpop.com/upload/2021/01/content/262046/1611711962-discord-button.png' height="100"></a>
+</div>
+
 # Credits
 * Original plugin made by Michal78900

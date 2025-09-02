@@ -48,28 +48,28 @@ public partial class TimerView
         var directoryPath = Path.Combine(RespawnTimer.RespawnTimerDirectoryPath, name);
         if (!Directory.Exists(directoryPath))
         {
-            Logger.Error($"{name} directory does not exist!");
+            LogManager.Error($"{name} directory does not exist!");
             return;
         }
 
         var timerBeforePath = Path.Combine(directoryPath, "TimerBeforeSpawn.txt");
         if (!File.Exists(timerBeforePath))
         {
-            Logger.Error($"{Path.GetFileName(timerBeforePath)} file does not exist!");
+            LogManager.Error($"{Path.GetFileName(timerBeforePath)} file does not exist!");
             return;
         }
 
         var timerDuringPath = Path.Combine(directoryPath, "TimerDuringSpawn.txt");
         if (!File.Exists(timerDuringPath))
         {
-            Logger.Error($"{Path.GetFileName(timerDuringPath)} file does not exist!");
+            LogManager.Error($"{Path.GetFileName(timerDuringPath)} file does not exist!");
             return;
         }
 
         var propertiesPath = Path.Combine(directoryPath, "Properties.yml");
         if (!File.Exists(propertiesPath))
         {
-            Logger.Error($"{Path.GetFileName(propertiesPath)} file does not exist! Creating...");
+            LogManager.Error($"{Path.GetFileName(propertiesPath)} file does not exist! Creating...");
             File.WriteAllText(propertiesPath, YamlParser.Serializer.Serialize(new Properties()));
         }
 

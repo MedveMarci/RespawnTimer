@@ -13,7 +13,7 @@ When you first install the plugin, the `DefaultTimer` folder will be automatical
 
 # For Support
 <div align="left">
-<a href='https://discord.gg/5StRGu8EJV'><img src='https://www.allkpop.com/upload/2021/01/content/262046/1611711962-discord-button.png' height="100"></a>
+<a href='https://discord.gg/KmpA8cfaSA'><img src='https://www.allkpop.com/upload/2021/01/content/262046/1611711962-discord-button.png' height="100"></a>
 </div>
 
 # Credits

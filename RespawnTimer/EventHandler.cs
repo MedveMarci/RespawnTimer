@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using HintServiceMeow.Core.Enum;
 using HintServiceMeow.Core.Utilities;
 using LabApi.Events.Arguments.PlayerEvents;
@@ -20,12 +21,21 @@ public class EventHandler
     private CoroutineHandle _hintsCoroutine;
     private CoroutineHandle _timerCoroutine;
 
-    internal void OnMapGenerated(MapGeneratedEventArgs ev)
+    internal void OnWaitingForPlayers()
     {
         if (RespawnTimer.Singleton.Config != null && RespawnTimer.Singleton.Config.ReloadTimerEachRound)
             RespawnTimer.Singleton.OnReloaded();
         if (_timerCoroutine.IsRunning) Timing.KillCoroutines(_timerCoroutine);
         if (_hintsCoroutine.IsRunning) Timing.KillCoroutines(_hintsCoroutine);
+        try
+        {
+            var currentVersion = RespawnTimer.Singleton.Version; // snapshot
+            _ = Task.Run(() => RespawnTimer.CheckForUpdatesAsync(currentVersion));
+        }
+        catch (Exception ex)
+        {
+            LogManager.Error($"Version check could not be started.\n{ex}");
+        }
     }
 
     internal void OnRoundStarted()
@@ -37,7 +47,7 @@ public class EventHandler
         }
         catch (Exception e)
         {
-            Logger.Error(e.ToString());
+            LogManager.Error(e.ToString());
         }
     }
 

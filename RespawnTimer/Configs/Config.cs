@@ -14,4 +14,7 @@ public sealed class Config
 
     [Description("Whether the timer should be reloaded each round. Useful if you have many different timers designed.")]
     public bool ReloadTimerEachRound { get; private set; } = true;
+    
+    [Description("Whether to enable debug messages in the console.")]
+    public bool Debug { get; private set; } = false;
 }

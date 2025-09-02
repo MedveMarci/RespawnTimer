@@ -135,10 +135,10 @@ public class RespawnTimer : Plugin<Config>
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
             using var client = new HttpClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd($"RespawnTimer/{currentVersion}");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd($"{Singleton.Name}/{currentVersion}");
             client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
 
-            const string repo = "MedveMarci/RespawnTimer";
+            var repo = $"MedveMarci/{Singleton.Name}";
             var latestStableJson = await client.GetStringAsync($"https://api.github.com/repos/{repo}/releases/latest")
                 .ConfigureAwait(false);
             var allReleasesJson = await client
@@ -206,14 +206,14 @@ public class RespawnTimer : Plugin<Config>
 
             if (outdatedStable)
                 LogManager.Info(
-                    $"A new RespawnTimer version is available: {stableTag} (current {currentVersion}). Download: https://github.com/MedveMarci/RespawnTimer/releases/latest",
+                    $"A new {Singleton.Name} version is available: {stableTag} (current {currentVersion}). Download: https://github.com/MedveMarci/{Singleton.Name}/releases/latest",
                     ConsoleColor.DarkRed);
             else if (prereleaseNewer)
                 LogManager.Info(
-                    $"A newer pre-release is available: {preTag} (current {currentVersion}). Download: https://github.com/MedveMarci/RespawnTimer/releases/tag/{preTag}",
+                    $"A newer pre-release is available: {preTag} (current {currentVersion}). Download: https://github.com/MedveMarci/{Singleton.Name}/releases/tag/{preTag}",
                     ConsoleColor.DarkYellow);
             else
-                LogManager.Info($"RespawnTimer v{currentVersion} is up to date.", ConsoleColor.Blue);
+                LogManager.Info($"Thanks for using {Singleton.Name} v{currentVersion}. To get support and latest news, join to my Discord Server: https://discord.gg/KmpA8cfaSA", ConsoleColor.Blue);
             if (PreRelease)
                 LogManager.Info(
                     "This is a pre-release version. There might be bugs, if you find one, please report it on GitHub or Discord.",

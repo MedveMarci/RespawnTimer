@@ -1,5 +1,6 @@
 ﻿#if HSM
 using HintServiceMeow.Core.Models.Arguments;
+using System;
 #endif
 using System.Collections.Generic;
 using System.IO;

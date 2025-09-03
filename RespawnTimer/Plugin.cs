@@ -91,7 +91,11 @@ public class RespawnTimer : Plugin<Config>
         var defaultTimerTemp = defaultTimerDirectory + "_Temp";
         using WebClient client = new();
         LogManager.Info("Downloading DefaultTimer.zip...");
+#if HSM
+        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/DefaultTimer-HSM.zip";
+#else
         var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/DefaultTimer.zip";
+#endif
         try
         {
             client.DownloadFile(url, defaultTimerZip);

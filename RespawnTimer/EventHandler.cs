@@ -112,9 +112,11 @@ public class EventHandler
                         throw new ArgumentOutOfRangeException();
                 }
 
+#if !HSM
             foreach (var player in Players)
                 if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
                     player.SendHint(timerView.GetText(), 1);
+#endif
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

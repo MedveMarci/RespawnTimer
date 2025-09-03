@@ -4,13 +4,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using LabApi.Events.Handlers;
 using LabApi.Features;
 using LabApi.Features.Wrappers;
 using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
-using System.Text.Json;
 using RespawnTimer.API.Features;
 using UserSettings.ServerSpecific;
 using Config = RespawnTimer.Configs.Config;
@@ -41,6 +41,7 @@ public class RespawnTimer : Plugin<Config>
             LogManager.Info("RespawnTimer directory does not exist. Creating...");
             Directory.CreateDirectory(RespawnTimerDirectoryPath);
         }
+
         var defaultTimerDirectory = Path.Combine(RespawnTimerDirectoryPath, "DefaultTimer");
         if (!Directory.Exists(defaultTimerDirectory)) DownloadDefaultTimer(defaultTimerDirectory);
         ServerEvents.WaitingForPlayers += _eventHandler.OnWaitingForPlayers;
@@ -54,7 +55,7 @@ public class RespawnTimer : Plugin<Config>
         [
             new SSGroupHeader("RespawnTimer"),
             new SSTwoButtonsSetting(1, "Timers", "Show", "Hide", false,
-                "Toggle RespawnTimer for yourself."),
+                "Toggle RespawnTimer for yourself.")
         ];
 
         if (ServerSpecificSettingsSync.DefinedSettings == null ||
@@ -112,7 +113,7 @@ public class RespawnTimer : Plugin<Config>
         LogManager.Info("Done!");
     }
 
-    
+
     public void OnReloaded()
     {
         if (Config != null && Config.Timers.IsEmpty())
@@ -164,10 +165,12 @@ public class RespawnTimer : Plugin<Config>
                 {
                     if (rel.ValueKind != JsonValueKind.Object) continue;
 
-                    bool draft = rel.TryGetProperty("draft", out var draftProp) && draftProp.ValueKind == JsonValueKind.True;
+                    var draft = rel.TryGetProperty("draft", out var draftProp) &&
+                                draftProp.ValueKind == JsonValueKind.True;
                     if (draft) continue;
 
-                    bool prerelease = rel.TryGetProperty("prerelease", out var preProp) && preProp.ValueKind == JsonValueKind.True;
+                    var prerelease = rel.TryGetProperty("prerelease", out var preProp) &&
+                                     preProp.ValueKind == JsonValueKind.True;
                     if (!prerelease) continue;
 
                     DateTime? publishedAt = null;
@@ -185,7 +188,8 @@ public class RespawnTimer : Plugin<Config>
                     }
                     else
                     {
-                        if (publishedAt.HasValue && (!bestPublishedAt.HasValue || publishedAt.Value > bestPublishedAt.Value))
+                        if (publishedAt.HasValue &&
+                            (!bestPublishedAt.HasValue || publishedAt.Value > bestPublishedAt.Value))
                         {
                             latestPre = rel;
                             bestPublishedAt = publishedAt;
@@ -213,7 +217,9 @@ public class RespawnTimer : Plugin<Config>
                     $"A newer pre-release is available: {preTag} (current {currentVersion}). Download: https://github.com/MedveMarci/{Singleton.Name}/releases/tag/{preTag}",
                     ConsoleColor.DarkYellow);
             else
-                LogManager.Info($"Thanks for using {Singleton.Name} v{currentVersion}. To get support and latest news, join to my Discord Server: https://discord.gg/KmpA8cfaSA", ConsoleColor.Blue);
+                LogManager.Info(
+                    $"Thanks for using {Singleton.Name} v{currentVersion}. To get support and latest news, join to my Discord Server: https://discord.gg/KmpA8cfaSA",
+                    ConsoleColor.Blue);
             if (PreRelease)
                 LogManager.Info(
                     "This is a pre-release version. There might be bugs, if you find one, please report it on GitHub or Discord.",
@@ -226,23 +232,23 @@ public class RespawnTimer : Plugin<Config>
     }
 
     private static Version ParseVersion(string tag)
+    {
+        try
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(tag)) return null;
-                var t = tag.Trim();
-                if (t.StartsWith("v", StringComparison.OrdinalIgnoreCase))
-                    t = t.Substring(1);
+            if (string.IsNullOrWhiteSpace(tag)) return null;
+            var t = tag.Trim();
+            if (t.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                t = t.Substring(1);
 
-                var cut = t.IndexOfAny(new[] { '-', '+' });
-                if (cut >= 0)
-                    t = t.Substring(0, cut);
+            var cut = t.IndexOfAny(new[] { '-', '+' });
+            if (cut >= 0)
+                t = t.Substring(0, cut);
 
-                return Version.TryParse(t, out var v) ? v : null;
-            }
-            catch
-            {
-                return null;
-            }
+            return Version.TryParse(t, out var v) ? v : null;
         }
+        catch
+        {
+            return null;
+        }
+    }
 }

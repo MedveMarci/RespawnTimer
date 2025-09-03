@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HintServiceMeow.Core.Enum;
-using HintServiceMeow.Core.Utilities;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
-using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using MEC;
 using PlayerRoles;
 using Respawning;
 using RespawnTimer.API.Features;
 using UserSettings.ServerSpecific;
+#if HSM
+using HintServiceMeow.Core.Enum;
+using HintServiceMeow.Core.Utilities;
 using Hint = HintServiceMeow.Core.Models.Hints.Hint;
+#endif
 
 namespace RespawnTimer;
 
 public class EventHandler
 {
+    private static readonly List<Player> Players = [];
     private CoroutineHandle _hintsCoroutine;
     private CoroutineHandle _timerCoroutine;
 
@@ -59,14 +61,21 @@ public class EventHandler
 
     internal static void RefreshHint(Player player, RoleTypeId newRole)
     {
+#if HSM
         var display = PlayerDisplay.Get(player);
+#endif
         if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
             ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB)
         {
+#if HSM
             display.RemoveHint("RespawnTimer");
+#else
+            Players.Remove(player);
+#endif
             return;
         }
 
+#if HSM
         if (!TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView)) return;
         if (display.TryGetHint("RespawnTimer", out var hint)) return;
         hint = new Hint
@@ -76,6 +85,10 @@ public class EventHandler
             Id = "RespawnTimer"
         };
         display.AddHint(hint);
+#else
+        if (Players.Contains(player)) return;
+        Players.Add(player);
+#endif
     }
 
     private static IEnumerator<float> TimerCoroutine()
@@ -99,6 +112,9 @@ public class EventHandler
                         throw new ArgumentOutOfRangeException();
                 }
 
+            foreach (var player in Players)
+                if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
+                    player.SendHint(timerView.GetText(), 1);
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

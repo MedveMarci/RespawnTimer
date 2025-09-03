@@ -7,14 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespawnTimer", "RespawnTime
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Release|x64 = Release|x64
-		Debug|x64 = Debug|x64
+		Basic|x64 = Basic|x64
+		HSM|x64 = HSM|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Release|x64.ActiveCfg = Release|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Release|x64.Build.0 = Release|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Debug|x64.ActiveCfg = Debug|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Debug|x64.Build.0 = Debug|x64
+		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Basic|x64.ActiveCfg = Basic|x64
+		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Basic|x64.Build.0 = Basic|x64
+		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.HSM|x64.ActiveCfg = HSM|x64
+		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.HSM|x64.Build.0 = HSM|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

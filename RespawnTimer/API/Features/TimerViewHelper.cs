@@ -86,10 +86,10 @@ public partial class TimerView
             _stringBuilder.Replace("{mnminutes}", "00").Replace("{mnseconds}", "00");
         var miniNtfToken = waves.OfType<NtfMiniWave>().Sum(wave => wave.RespawnTokens);
         var miniCiToken = waves.OfType<ChaosMiniWave>().Sum(wave => wave.RespawnTokens);
-        
+
         _stringBuilder.Replace("{mntoken}", $"{miniNtfToken}");
         _stringBuilder.Replace("{mctoken}", $"{miniCiToken}");
-        
+
         return;
 
         void ReplaceTime(string placeholder, TimeSpan? time)
@@ -147,8 +147,7 @@ public partial class TimerView
     private static WarheadStatuss GetWarheadStatus()
     {
         return Warhead.IsDetonationInProgress
-            ?
-            Warhead.IsDetonated ? WarheadStatuss.Detonated : WarheadStatuss.InProgress
+            ? Warhead.IsDetonated ? WarheadStatuss.Detonated : WarheadStatuss.InProgress
             : Warhead.LeverStatus
                 ? WarheadStatuss.Armed
                 : WarheadStatuss.NotArmed;

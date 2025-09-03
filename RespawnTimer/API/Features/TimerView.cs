@@ -1,10 +1,10 @@
-﻿using System;
+﻿#if HSM
+using HintServiceMeow.Core.Models.Arguments;
+#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using HintServiceMeow.Core.Models.Arguments;
-using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using Respawning;
@@ -117,6 +117,7 @@ public partial class TimerView
         return false;
     }
 
+#if HSM
     public string GetText(AutoContentUpdateArg arg)
     {
         arg.NextUpdateDelay = TimeSpan.FromSeconds(1);
@@ -130,6 +131,20 @@ public partial class TimerView
         _stringBuilder.Replace('{', '[').Replace('}', ']');
         return _stringBuilder.ToString();
     }
+#else
+    public string GetText()
+    {
+        _stringBuilder.Clear();
+        _stringBuilder.Append(
+            WaveManager.State is not (WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
+                ? BeforeRespawnString
+                : DuringRespawnString);
+        SetAllProperties(Player.ReadyList.Count(p => p.Role is RoleTypeId.Spectator));
+        _stringBuilder.Replace("{RANDOM_COLOR}", $"#{Random.Range(0x0, 0xFFFFFF):X6}");
+        _stringBuilder.Replace('{', '[').Replace('}', ']');
+        return _stringBuilder.ToString();
+    }
+#endif
 
     internal void IncrementHintInterval()
     {

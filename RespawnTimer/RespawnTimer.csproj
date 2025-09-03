@@ -10,16 +10,24 @@
         <Optimize>true</Optimize>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Platforms>x64</Platforms>
-        <Configurations>Release;Debug</Configurations>
+        <Configurations>Basic;HSM</Configurations>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-      <DefineConstants>TRACE;DEBUG</DefineConstants>
-      <DebugType>embedded</DebugType>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Basic|x64' ">
+        <DefineConstants>TRACE;BASIC</DefineConstants>
+        <DebugType>embedded</DebugType>
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-      <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'HSM|x64' ">
+        <DefineConstants>TRACE;HSM</DefineConstants>
+        <DebugType>embedded</DebugType>
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+        <DebugSymbols>true</DebugSymbols>
+        <AssemblyName>RespawnTimer-HSM</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -43,8 +51,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="9.0.8" />
-      <PackageReference Include="System.Net.Http" Version="4.3.4" />
+        <PackageReference Include="System.Text.Json" Version="9.0.8"/>
+        <PackageReference Include="System.Net.Http" Version="4.3.4"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

@@ -141,6 +141,13 @@ public class EventHandler
         if (settingBase.SettingId != 1) return;
         RefreshHint(Player.Get(hub), hub.GetRoleId());
     }
+    
+#if !HSM
+    internal static void OnLeft(PlayerLeftEventArgs ev)
+    {
+        if (Players.Contains(ev.Player)) Players.Remove(ev.Player);
+    }
+#endif
 
     internal static void OnWaveRespawning(WaveRespawningEventArgs ev)
     {

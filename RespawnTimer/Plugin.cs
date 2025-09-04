@@ -28,7 +28,7 @@ public class RespawnTimer : Plugin<Config>
     public override string Name => "RespawnTimer";
     public override string Description => "Respawn epic Timer";
     public override string Author => "MedveMarci";
-    public override Version Version => new(1, 1, 0);
+    public override Version Version => new(1, 1, 1);
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     public override void Enable()
@@ -50,6 +50,9 @@ public class RespawnTimer : Plugin<Config>
         ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
         PlayerEvents.Joined += EventHandler.OnJoined;
         ServerEvents.WaveRespawning += EventHandler.OnWaveRespawning;
+#if !HSM
+        PlayerEvents.Left += EventHandler.OnLeft;
+#endif
 
         ServerSpecificSettingBase[] setting =
         [
@@ -81,6 +84,9 @@ public class RespawnTimer : Plugin<Config>
         ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
         PlayerEvents.Joined -= EventHandler.OnJoined;
         ServerEvents.WaveRespawning -= EventHandler.OnWaveRespawning;
+        #if !HSM
+        PlayerEvents.Left -= EventHandler.OnLeft;
+        #endif
         _eventHandler = null;
         Singleton = null;
     }

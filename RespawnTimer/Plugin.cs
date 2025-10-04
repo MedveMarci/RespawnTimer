@@ -28,7 +28,7 @@ public class RespawnTimer : Plugin<Config>
     public override string Name => "RespawnTimer";
     public override string Description => "Respawn epic Timer";
     public override string Author => "MedveMarci";
-    public override Version Version => new(1, 1, 1);
+    public override Version Version => new(1, 1, 2);
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     public override void Enable()

@@ -1,6 +1,6 @@
 namespace RespawnTimer.Enums;
 
-public enum WarheadStatuss
+public enum WarheadStatusType
 {
     NotArmed,
     Armed,

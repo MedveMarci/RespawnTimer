@@ -27,6 +27,9 @@ internal abstract class LogManager
 
     public static void Error(string message)
     {
-        Logger.Raw($"[ERROR] [{RespawnTimer.Singleton.Name}] Details:\nVersion: {RespawnTimer.Singleton.Version}\n{message}", ConsoleColor.Red);
+        var singleton = RespawnTimer.Singleton;
+        var name = singleton?.Name ?? "Unknown";
+        var version = singleton?.Version.ToString() ?? "Unknown";
+        Logger.Raw($"[ERROR] [{name}] Details:\nVersion: {version}\n{message}", ConsoleColor.Red);
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using HintServiceMeow.Core.Models.Arguments;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -114,8 +116,9 @@ public partial class TimerView
         return false;
     }
     
-    public string GetText()
+    public string GetText(AutoContentUpdateArg arg)
     {
+        arg.NextUpdateDelay = TimeSpan.FromSeconds(1);
         _stringBuilder.Clear();
         _stringBuilder.Append(
             WaveManager.State is not (WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)

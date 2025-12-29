@@ -9,12 +9,14 @@ using PlayerRoles;
 using Respawning;
 using RespawnTimer.API.Features;
 using UserSettings.ServerSpecific;
+using HintServiceMeow.Core.Enum;
+using HintServiceMeow.Core.Utilities;
+using Hint = HintServiceMeow.Core.Models.Hints.Hint;
 
 namespace RespawnTimer;
 
 public class EventHandler
 {
-    private static readonly List<Player> Players = [];
     private CoroutineHandle _hintsCoroutine;
     private CoroutineHandle _timerCoroutine;
 
@@ -24,7 +26,7 @@ public class EventHandler
         if (_hintsCoroutine.IsRunning) Timing.KillCoroutines(_hintsCoroutine);
         try
         {
-            var currentVersion = RespawnTimer.Singleton.Version;
+            var currentVersion = RespawnTimer.Singleton.Version; // snapshot
             _ = Task.Run(() => VersionManager.CheckForUpdatesAsync(currentVersion));
         }
         catch (Exception ex)
@@ -54,15 +56,23 @@ public class EventHandler
 
     internal static void RefreshHint(Player player, RoleTypeId newRole)
     {
+        var display = PlayerDisplay.Get(player);
         if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
             ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB)
         {
-            Players.Remove(player);
+            display.RemoveHint("RespawnTimer");
             return;
         }
         
-        if (Players.Contains(player)) return;
-        Players.Add(player);
+        if (!TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView)) return;
+        if (display.TryGetHint("RespawnTimer", out var hint)) return;
+        hint = new Hint
+        {
+            AutoText = timerView.GetText,
+            SyncSpeed = HintSyncSpeed.Fastest,
+            Id = "RespawnTimer"
+        };
+        display.AddHint(hint);
     }
 
     private static IEnumerator<float> TimerCoroutine()
@@ -85,10 +95,6 @@ public class EventHandler
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            
-            foreach (var player in Players)
-                if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
-                    player.SendHint(timerView.GetText(), 1.25f);
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }
@@ -112,11 +118,6 @@ public class EventHandler
     {
         if (settingBase.SettingId != 1) return;
         RefreshHint(Player.Get(hub), hub.GetRoleId());
-    }
-    
-    internal static void OnLeft(PlayerLeftEventArgs ev)
-    {
-        if (Players.Contains(ev.Player)) Players.Remove(ev.Player);
     }
 
     internal static void OnWaveRespawning(WaveRespawningEventArgs ev)

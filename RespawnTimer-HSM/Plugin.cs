@@ -55,7 +55,6 @@ public class RespawnTimer : Plugin<Config>
         ServerSpecificSettingsSync.ServerOnSettingValueReceived += EventHandler.OnSettingValueReceived;
         PlayerEvents.Joined += EventHandler.OnJoined;
         ServerEvents.WaveRespawning += EventHandler.OnWaveRespawning;
-        PlayerEvents.Left += EventHandler.OnLeft;
 
         ServerSpecificSettingBase[] setting =
         [
@@ -87,7 +86,6 @@ public class RespawnTimer : Plugin<Config>
         ServerSpecificSettingsSync.ServerOnSettingValueReceived -= EventHandler.OnSettingValueReceived;
         PlayerEvents.Joined -= EventHandler.OnJoined;
         ServerEvents.WaveRespawning -= EventHandler.OnWaveRespawning;
-        PlayerEvents.Left -= EventHandler.OnLeft;
         _eventHandler = null;
         Singleton = null;
     }
@@ -97,8 +95,8 @@ public class RespawnTimer : Plugin<Config>
         var defaultTimerZip = defaultTimerDirectory + ".zip";
         var defaultTimerTemp = defaultTimerDirectory + "_Temp";
         using WebClient client = new();
-        LogManager.Info("Downloading DefaultTimer.zip...");
-        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/DefaultTimer.zip";
+        LogManager.Info("Downloading DefaultTimer-HSM.zip...");
+        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/DefaultTimer-HSM.zip";
         try
         {
             client.DownloadFile(url, defaultTimerZip);
@@ -107,11 +105,11 @@ public class RespawnTimer : Plugin<Config>
         {
             if (e.Response is HttpWebResponse response)
                 LogManager.Error(
-                    $"Error while downloading DefaultTimer.zip: {(int)response.StatusCode} {response.StatusCode}");
+                    $"Error while downloading DefaultTimer-HSM.zip: {(int)response.StatusCode} {response.StatusCode}");
             return;
         }
 
-        LogManager.Info("DefaultTimer.zip has been downloaded!");
+        LogManager.Info("DefaultTimer-HSM.zip has been downloaded!");
         LogManager.Info("Extracting...");
         ZipFile.ExtractToDirectory(defaultTimerZip, defaultTimerTemp);
         Directory.Move(Path.Combine(defaultTimerTemp, "DefaultTimer"), defaultTimerDirectory);

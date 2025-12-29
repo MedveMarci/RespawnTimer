@@ -3,18 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespawnTimer", "RespawnTimer\RespawnTimer.csproj", "{8A5C7D97-95AE-4008-B32E-B365B30DBA30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespawnTimer-HSM", "RespawnTimer-HSM\RespawnTimer-HSM.csproj", "{398EC3D0-59E8-4F3E-A7AF-65DF74CA9402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespawnTimer", "RespawnTimer\RespawnTimer.csproj", "{E43EEA31-56EA-4DC0-AC68-1E7557DB7DC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespawnTimer-RueI", "RespawnTimer-RueI\RespawnTimer-RueI.csproj", "{A07F1ECF-85B7-442D-BB71-DB12545D3AEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Basic|x64 = Basic|x64
-		HSM|x64 = HSM|x64
+		Release|Any CPU = Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Basic|x64.ActiveCfg = Basic|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.Basic|x64.Build.0 = Basic|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.HSM|x64.ActiveCfg = HSM|x64
-		{8A5C7D97-95AE-4008-B32E-B365B30DBA30}.HSM|x64.Build.0 = HSM|x64
+		{E43EEA31-56EA-4DC0-AC68-1E7557DB7DC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E43EEA31-56EA-4DC0-AC68-1E7557DB7DC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E43EEA31-56EA-4DC0-AC68-1E7557DB7DC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E43EEA31-56EA-4DC0-AC68-1E7557DB7DC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{398EC3D0-59E8-4F3E-A7AF-65DF74CA9402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{398EC3D0-59E8-4F3E-A7AF-65DF74CA9402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{398EC3D0-59E8-4F3E-A7AF-65DF74CA9402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{398EC3D0-59E8-4F3E-A7AF-65DF74CA9402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A07F1ECF-85B7-442D-BB71-DB12545D3AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A07F1ECF-85B7-442D-BB71-DB12545D3AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A07F1ECF-85B7-442D-BB71-DB12545D3AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A07F1ECF-85B7-442D-BB71-DB12545D3AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

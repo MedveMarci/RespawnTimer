@@ -9,14 +9,16 @@ using PlayerRoles;
 using Respawning;
 using RespawnTimer.API.Features;
 using UserSettings.ServerSpecific;
+using RueI.API;
+using RueI.API.Elements;
 
 namespace RespawnTimer;
 
 public class EventHandler
 {
-    private static readonly List<Player> Players = [];
     private CoroutineHandle _hintsCoroutine;
     private CoroutineHandle _timerCoroutine;
+    private static readonly Tag RespawnTimerTag = new("respawntimer");
 
     internal void OnWaitingForPlayers()
     {
@@ -54,15 +56,22 @@ public class EventHandler
 
     internal static void RefreshHint(Player player, RoleTypeId newRole)
     {
+        var display = RueDisplay.Get(player);
         if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
-            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB)
+            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB || !TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
         {
-            Players.Remove(player);
+            display.Remove(RespawnTimerTag);
             return;
         }
-        
-        if (Players.Contains(player)) return;
-        Players.Add(player);
+
+        var element = new DynamicElement(
+            position: 980f,
+            contentGetter: timerView.GetText)
+        {
+            UpdateInterval = TimeSpan.FromSeconds(1),
+            ShowToSpectators = false
+        };
+        display.Show(RespawnTimerTag, element);
     }
 
     private static IEnumerator<float> TimerCoroutine()
@@ -85,10 +94,6 @@ public class EventHandler
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            
-            foreach (var player in Players)
-                if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
-                    player.SendHint(timerView.GetText(), 1.25f);
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }
@@ -112,11 +117,6 @@ public class EventHandler
     {
         if (settingBase.SettingId != 1) return;
         RefreshHint(Player.Get(hub), hub.GetRoleId());
-    }
-    
-    internal static void OnLeft(PlayerLeftEventArgs ev)
-    {
-        if (Players.Contains(ev.Player)) Players.Remove(ev.Player);
     }
 
     internal static void OnWaveRespawning(WaveRespawningEventArgs ev)

@@ -10,7 +10,7 @@ A SCP: Secret Laboratory LabApi plugin that shows when the next respawn wave wil
 - Option for adding multiple custom texts (hints) to the interface, where you can put advertisements and/or gameplay
   hints for players.
 - Option for hiding the timer interface (Server-Specific Setting)
-- Compatible with [HintServiceMeow-LabApi](https://github.com/MeowServer/HintServiceMeow/releases/latest).
+- Compatible with [HintServiceMeow-LabApi](https://github.com/MeowServer/HintServiceMeow/releases/latest), [RueI](https://github.com/pawslee/RueI) and Base Game Hint System.
 
 # Configuration
 

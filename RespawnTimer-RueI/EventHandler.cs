@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Wrappers;
@@ -8,17 +7,18 @@ using MEC;
 using PlayerRoles;
 using Respawning;
 using RespawnTimer.API.Features;
-using UserSettings.ServerSpecific;
+using RespawnTimer.ApiFeatures;
 using RueI.API;
 using RueI.API.Elements;
+using UserSettings.ServerSpecific;
 
 namespace RespawnTimer;
 
 public class EventHandler
 {
+    private static readonly Tag RespawnTimerTag = new("respawntimer");
     private CoroutineHandle _hintsCoroutine;
     private CoroutineHandle _timerCoroutine;
-    private static readonly Tag RespawnTimerTag = new("respawntimer");
 
     internal void OnWaitingForPlayers()
     {
@@ -26,8 +26,7 @@ public class EventHandler
         if (_hintsCoroutine.IsRunning) Timing.KillCoroutines(_hintsCoroutine);
         try
         {
-            var currentVersion = RespawnTimer.Singleton.Version;
-            _ = Task.Run(() => VersionManager.CheckForUpdatesAsync(currentVersion));
+            ApiManager.CheckForUpdates();
         }
         catch (Exception ex)
         {
@@ -58,15 +57,16 @@ public class EventHandler
     {
         var display = RueDisplay.Get(player);
         if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
-            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB || !TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
+            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB ||
+            !TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
         {
             display.Remove(RespawnTimerTag);
             return;
         }
 
         var element = new DynamicElement(
-            position: 980f,
-            contentGetter: timerView.GetText)
+            980f,
+            timerView.GetText)
         {
             UpdateInterval = TimeSpan.FromSeconds(1),
             ShowToSpectators = false
@@ -94,6 +94,7 @@ public class EventHandler
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

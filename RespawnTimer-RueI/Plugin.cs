@@ -11,6 +11,7 @@ using LabApi.Loader;
 using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
 using RespawnTimer.API.Features;
+using RespawnTimer.ApiFeatures;
 using UserSettings.ServerSpecific;
 using Config = RespawnTimer.Configs.Config;
 using Version = System.Version;
@@ -21,24 +22,25 @@ public class RespawnTimer : Plugin<Config>
 {
     public static RespawnTimer Singleton;
     private EventHandler _eventHandler;
+    public string githubRepo = "MedveMarci/RespawnTimer";
     public static string RespawnTimerDirectoryPath { get; private set; }
 
-    public override string Name => "RespawnTimer";
+    public override string Name => "RespawnTimer-RueI";
     public override string Description => "A customizable respawn timer for SCP:SL.";
     public override string Author => "MedveMarci";
-    public override Version Version => new(1, 2, 0);
+    public override Version Version => new(1, 2, 1);
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
-    public string githubRepo = "MedveMarci/RespawnTimer";
 
     public override void Enable()
     {
-        if (PluginLoader.Plugins.Keys.Any(plugin => plugin != this && plugin.Name.Contains("RespawnTimer", StringComparison.OrdinalIgnoreCase)))
+        Singleton = this;
+        if (PluginLoader.Plugins.Keys.Any(plugin =>
+                plugin != this && plugin.Name.Contains("RespawnTimer", StringComparison.OrdinalIgnoreCase)))
         {
             LogManager.Error("Another instance of RespawnTimer is already loaded!");
             return;
         }
-        
-        Singleton = this;
+
         RespawnTimerDirectoryPath = Path.Combine(PathManager.Configs.FullName, "RespawnTimer");
         _eventHandler = new EventHandler();
         if (!Directory.Exists(RespawnTimerDirectoryPath))

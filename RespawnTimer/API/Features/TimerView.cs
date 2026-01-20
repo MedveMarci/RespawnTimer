@@ -5,6 +5,7 @@ using System.Text;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using Respawning;
+using RespawnTimer.ApiFeatures;
 using RespawnTimer.Configs;
 using Serialization;
 using Random = UnityEngine.Random;
@@ -17,7 +18,8 @@ public partial class TimerView
 
     private readonly StringBuilder _stringBuilder = new(1024);
 
-    private TimerView(string beforeRespawnString, string duringRespawnString, Properties properties, List<string> hints)
+    internal TimerView(string beforeRespawnString, string duringRespawnString, Properties properties,
+        List<string> hints)
     {
         BeforeRespawnString = beforeRespawnString;
         DuringRespawnString = duringRespawnString;
@@ -29,9 +31,9 @@ public partial class TimerView
 
     private int HintInterval { get; set; }
 
-    private string BeforeRespawnString { get; }
+    internal string BeforeRespawnString { get; }
 
-    private string DuringRespawnString { get; }
+    internal string DuringRespawnString { get; }
 
     private Properties Properties { get; }
 
@@ -113,7 +115,7 @@ public partial class TimerView
         timerView = null!;
         return false;
     }
-    
+
     public string GetText()
     {
         _stringBuilder.Clear();

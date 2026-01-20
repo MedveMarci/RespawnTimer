@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Wrappers;
@@ -8,6 +7,7 @@ using MEC;
 using PlayerRoles;
 using Respawning;
 using RespawnTimer.API.Features;
+using RespawnTimer.ApiFeatures;
 using UserSettings.ServerSpecific;
 
 namespace RespawnTimer;
@@ -24,8 +24,7 @@ public class EventHandler
         if (_hintsCoroutine.IsRunning) Timing.KillCoroutines(_hintsCoroutine);
         try
         {
-            var currentVersion = RespawnTimer.Singleton.Version;
-            _ = Task.Run(() => VersionManager.CheckForUpdatesAsync(currentVersion));
+            ApiManager.CheckForUpdates();
         }
         catch (Exception ex)
         {
@@ -60,7 +59,7 @@ public class EventHandler
             Players.Remove(player);
             return;
         }
-        
+
         if (Players.Contains(player)) return;
         Players.Add(player);
     }
@@ -85,7 +84,7 @@ public class EventHandler
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            
+
             foreach (var player in Players)
                 if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
                     player.SendHint(timerView.GetText(), 1.25f);
@@ -113,7 +112,7 @@ public class EventHandler
         if (settingBase.SettingId != 1) return;
         RefreshHint(Player.Get(hub), hub.GetRoleId());
     }
-    
+
     internal static void OnLeft(PlayerLeftEventArgs ev)
     {
         if (Players.Contains(ev.Player)) Players.Remove(ev.Player);

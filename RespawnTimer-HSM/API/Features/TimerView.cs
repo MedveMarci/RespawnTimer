@@ -1,12 +1,13 @@
-﻿using HintServiceMeow.Core.Models.Arguments;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HintServiceMeow.Core.Models.Arguments;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using Respawning;
+using RespawnTimer.ApiFeatures;
 using RespawnTimer.Configs;
 using Serialization;
 using Random = UnityEngine.Random;
@@ -31,9 +32,9 @@ public partial class TimerView
 
     private int HintInterval { get; set; }
 
-    private string BeforeRespawnString { get; }
+    internal string BeforeRespawnString { get; }
 
-    private string DuringRespawnString { get; }
+    internal string DuringRespawnString { get; }
 
     private Properties Properties { get; }
 
@@ -115,7 +116,7 @@ public partial class TimerView
         timerView = null!;
         return false;
     }
-    
+
     public string GetText(AutoContentUpdateArg arg)
     {
         arg.NextUpdateDelay = TimeSpan.FromSeconds(1);

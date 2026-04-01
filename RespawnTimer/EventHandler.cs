@@ -47,7 +47,7 @@ public class EventHandler
 
     internal static void OnRoleChanging(PlayerChangingRoleEventArgs ev)
     {
-        RespawnTimer.Singleton.OnReloaded();
+        RespawnTimer.OnReloaded();
         RefreshHint(ev.Player, ev.NewRole);
     }
 
@@ -85,9 +85,9 @@ public class EventHandler
                         throw new ArgumentOutOfRangeException();
                 }
 
-            foreach (var player in Players)
-                if (TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
-                    player.SendHint(timerView.GetText(), 1.25f);
+            if (TimerView.Instance is not null)
+                foreach (var player in Players)
+                    player.SendHint(TimerView.Instance.GetText(player.ReferenceHub), 1.25f);
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }
@@ -97,7 +97,7 @@ public class EventHandler
         while (true)
         {
             yield return Timing.WaitForSeconds(1f);
-            foreach (var timerView in TimerView.CachedTimers.Values) timerView.IncrementHintInterval();
+            TimerView.Instance?.IncrementHintInterval();
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

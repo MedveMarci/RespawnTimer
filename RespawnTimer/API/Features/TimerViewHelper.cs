@@ -7,7 +7,9 @@ using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
 using Respawning.Waves;
+using RespawnTimer.API;
 using RespawnTimer.Enums;
+using RespawnTimer.Integrations;
 using UnityEngine;
 
 namespace RespawnTimer.API.Features;
@@ -18,7 +20,7 @@ public partial class TimerView
     public static float NtfOffset { get; set; } = 18f;
     public static float ShOffset { get; set; } = 15f;
 
-    private void SetAllProperties(int? spectatorCount = null)
+    private void SetAllProperties(ReferenceHub hub, int? spectatorCount = null)
     {
         SetRoundTime();
         SetMinutesAndSeconds();
@@ -28,6 +30,7 @@ public partial class TimerView
         SetGeneratorCount();
         SetTpsAndTickrate();
         SetHint();
+        SetExternalProperties(hub);
     }
 
     private void SetRoundTime()
@@ -169,5 +172,18 @@ public partial class TimerView
     {
         if (!Hints.Any()) return;
         _stringBuilder.Replace("{hint}", Hints[HintIndex]);
+    }
+    
+    private void SetExternalProperties(ReferenceHub hub)
+    {
+        var spectated = Player.Get(hub).CurrentlySpectating;
+
+        foreach (var kvp in TimerAPI.Properties)
+        {
+            var placeholder = kvp.Key;
+            var valueProvider = kvp.Value;
+            var value = spectated is not null ? valueProvider(spectated) : null;
+            _stringBuilder.Replace($"{{{placeholder}}}", value ?? string.Empty);
+        }
     }
 }

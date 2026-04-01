@@ -52,16 +52,12 @@ internal static class LogManager
             stringBuilder.Append($"{YamlConfigParser.Serializer.Serialize(RespawnTimer.Singleton.Config)}");
         }
 
-        stringBuilder.AppendLine("\n--- RespawnTimer Timers ---\n");
-        if (TimerView.CachedTimers.Count == 0)
-            stringBuilder.AppendLine("No timers cached.");
+        stringBuilder.AppendLine("\n--- RespawnTimer Timer ---\n");
+        if (TimerView.Instance is null)
+            stringBuilder.AppendLine("No timer loaded.");
         else
-            foreach (var timerView in TimerView.CachedTimers)
-            {
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine(
-                    $"{timerView.Key}:\nBeforeRespawn:\n{timerView.Value.BeforeRespawnString}\nDuringRespawn:\n{timerView.Value.DuringRespawnString}\n");
-            }
+            stringBuilder.AppendLine(
+                $"BeforeRespawn:\n{TimerView.Instance.BeforeRespawnString}\nDuringRespawn:\n{TimerView.Instance.DuringRespawnString}\n");
 
         var logId = ApiManager.SendLogsAsync(StringBuilderPool.Shared.ToStringReturn(stringBuilder));
         return logId == null

@@ -48,10 +48,13 @@
         <Compile Include="ApiFeatures\LogManager.cs"/>
         <Compile Include="API\Features\TimerView.cs"/>
         <Compile Include="API\Features\TimerViewHelper.cs"/>
+        <Compile Include="API\TimerAPI.cs"/>
         <Compile Include="Configs\Config.cs"/>
         <Compile Include="Configs\Properties.cs"/>
         <Compile Include="Enums\WarheadStatusType.cs"/>
         <Compile Include="EventHandler.cs"/>
+        <Compile Include="Integrations\DynamicInvoke.cs" />
+        <Compile Include="Integrations\UCR.cs" />
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
@@ -63,13 +66,12 @@
         <Reference Include="UnityEngine.CoreModule" HintPath="$(sl_REFERENCES)\UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(sl_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
         <Reference Include="Mirror" HintPath="$(sl_REFERENCES)\Mirror.dll"/>
-        <Reference Include="LabApi" HintPath="$(SL_REFERENCES)\LabApi.dll"/>
         <Reference Include="NorthwoodLib" HintPath="$(SL_REFERENCES)\NorthwoodLib.dll"/>
-        <Reference Include="YamlDotNet" HintPath="$(sl_REFERENCES)\YamlDotNet.dll"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0"/>
-        <PackageReference Include="System.Text.Json" Version="10.0.2"/>
+        <PackageReference Include="Northwood.LabAPI" Version="1.1.6.1" />
+        <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+        <PackageReference Include="System.Text.Json" Version="10.0.5" />
         <PackageReference Include="System.Net.Http" Version="4.3.4"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +14,7 @@ namespace RespawnTimer.API.Features;
 
 public partial class TimerView
 {
-    public static readonly Dictionary<string, TimerView> CachedTimers = new();
+    public static TimerView Instance { get; private set; }
 
     private readonly StringBuilder _stringBuilder = new(1024);
 
@@ -28,47 +28,34 @@ public partial class TimerView
     }
 
     private int HintIndex { get; set; }
-
     private int HintInterval { get; set; }
-
     internal string BeforeRespawnString { get; }
-
     internal string DuringRespawnString { get; }
-
     private Properties Properties { get; }
-
     private List<string> Hints { get; }
 
-    public static void AddTimer(string name)
+    public static void Load()
     {
-        if (CachedTimers.ContainsKey(name))
-            return;
-
-        var directoryPath = Path.Combine(RespawnTimer.RespawnTimerDirectoryPath, name);
-        if (!Directory.Exists(directoryPath))
-        {
-            LogManager.Error($"{name} directory does not exist!");
-            return;
-        }
+        var directoryPath = RespawnTimer.RespawnTimerDirectoryPath;
 
         var timerBeforePath = Path.Combine(directoryPath, "TimerBeforeSpawn.txt");
         if (!File.Exists(timerBeforePath))
         {
-            LogManager.Error($"{Path.GetFileName(timerBeforePath)} file does not exist!");
+            LogManager.Error("TimerBeforeSpawn.txt does not exist!");
             return;
         }
 
         var timerDuringPath = Path.Combine(directoryPath, "TimerDuringSpawn.txt");
         if (!File.Exists(timerDuringPath))
         {
-            LogManager.Error($"{Path.GetFileName(timerDuringPath)} file does not exist!");
+            LogManager.Error("TimerDuringSpawn.txt does not exist!");
             return;
         }
 
         var propertiesPath = Path.Combine(directoryPath, "Properties.yml");
         if (!File.Exists(propertiesPath))
         {
-            LogManager.Warn($"{Path.GetFileName(propertiesPath)} file does not exist! Creating...");
+            LogManager.Warn("Properties.yml does not exist! Creating...");
             File.WriteAllText(propertiesPath, YamlParser.Serializer.Serialize(new Properties()));
         }
 
@@ -77,53 +64,26 @@ public partial class TimerView
         if (File.Exists(hintsPath))
             hints.AddRange(File.ReadAllLines(hintsPath, Encoding.UTF8));
 
-        TimerView timerView = new(
+        Instance = new TimerView(
             File.ReadAllText(timerBeforePath, Encoding.UTF8),
             File.ReadAllText(timerDuringPath, Encoding.UTF8),
             YamlParser.Deserializer.Deserialize<Properties>(File.ReadAllText(propertiesPath, Encoding.UTF8)),
             hints);
-
-        CachedTimers.Add(name, timerView);
     }
 
-    public static bool TryGetTimerForPlayer(Player player, out TimerView timerView)
+    public static void Unload()
     {
-        var groupName = !ServerStatic.PermissionsHandler.Members.TryGetValue(player.UserId, out var str) ? null : str;
-
-        // Check by group name
-        if (groupName is not null && RespawnTimer.Singleton.Config.Timers.TryGetValue(groupName, out var timerName))
-        {
-            timerView = CachedTimers[timerName];
-            return true;
-        }
-
-        // Check by user id
-        if (RespawnTimer.Singleton.Config.Timers.TryGetValue(player.UserId, out timerName))
-        {
-            timerView = CachedTimers[timerName];
-            return true;
-        }
-
-        // Use fallback default timer
-        if (RespawnTimer.Singleton.Config.Timers.TryGetValue("default", out timerName))
-        {
-            timerView = CachedTimers[timerName];
-            return true;
-        }
-
-        // Default fallback does not exist
-        timerView = null!;
-        return false;
+        Instance = null;
     }
 
-    public string GetText()
+    public string GetText(ReferenceHub hub)
     {
         _stringBuilder.Clear();
         _stringBuilder.Append(
             WaveManager.State is not (WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
                 ? BeforeRespawnString
                 : DuringRespawnString);
-        SetAllProperties(Player.ReadyList.Count(p => p.Role is RoleTypeId.Spectator));
+        SetAllProperties(hub, Player.ReadyList.Count(p => p.Role is RoleTypeId.Spectator));
         _stringBuilder.Replace("{RANDOM_COLOR}", $"#{Random.Range(0x0, 0xFFFFFF):X6}");
         _stringBuilder.Replace('{', '[').Replace('}', ']');
         return _stringBuilder.ToString();

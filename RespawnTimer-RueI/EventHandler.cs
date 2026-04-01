@@ -49,7 +49,7 @@ public class EventHandler
 
     internal static void OnRoleChanging(PlayerChangingRoleEventArgs ev)
     {
-        RespawnTimer.Singleton.OnReloaded();
+        RespawnTimer.OnReloaded();
         RefreshHint(ev.Player, ev.NewRole);
     }
 
@@ -58,7 +58,7 @@ public class EventHandler
         var display = RueDisplay.Get(player);
         if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
             ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB ||
-            !TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView))
+            TimerView.Instance is null)
         {
             display.Remove(RespawnTimerTag);
             return;
@@ -66,7 +66,7 @@ public class EventHandler
 
         var element = new DynamicElement(
             980f,
-            timerView.GetText)
+            TimerView.Instance.GetText)
         {
             UpdateInterval = TimeSpan.FromSeconds(1),
             ShowToSpectators = false
@@ -104,7 +104,7 @@ public class EventHandler
         while (true)
         {
             yield return Timing.WaitForSeconds(1f);
-            foreach (var timerView in TimerView.CachedTimers.Values) timerView.IncrementHintInterval();
+            TimerView.Instance?.IncrementHintInterval();
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

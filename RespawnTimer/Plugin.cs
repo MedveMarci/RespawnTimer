@@ -107,7 +107,7 @@ public class RespawnTimer : Plugin<Config>
         var oldDir = Path.Combine(RespawnTimerDirectoryPath, "DefaultTimer");
         if (!Directory.Exists(oldDir)) return;
 
-        LogManager.Warn("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        LogManager.Warn("==============================================");
         LogManager.Warn("[RespawnTimer] Legacy 'DefaultTimer' folder detected!");
         LogManager.Warn("[RespawnTimer] Migrating files to the new location...");
 
@@ -130,7 +130,7 @@ public class RespawnTimer : Plugin<Config>
             LogManager.Info("[RespawnTimer] Old DefaultTimer directory removed.");
         }
 
-        LogManager.Warn("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        LogManager.Warn("==============================================");
     }
 
     private void EnsureTimerFiles()
@@ -150,7 +150,7 @@ public class RespawnTimer : Plugin<Config>
         var zipPath = Path.Combine(RespawnTimerDirectoryPath, zipName);
         var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/{zipName}";
 
-        LogManager.Warn("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        LogManager.Warn("==============================================");
 
         if (missingFiles.Count == RequiredFiles.Length)
         {
@@ -178,7 +178,7 @@ public class RespawnTimer : Plugin<Config>
                     $"[RespawnTimer] Download failed: {(int)response.StatusCode} {response.StatusCode}");
             else
                 LogManager.Error($"[RespawnTimer] Download failed: {e.Message}");
-            LogManager.Warn("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            LogManager.Warn("==============================================");
             return;
         }
 
@@ -202,10 +202,10 @@ public class RespawnTimer : Plugin<Config>
 
         File.Delete(zipPath);
         LogManager.Info("[RespawnTimer] Done!");
-        LogManager.Warn("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        LogManager.Warn("==============================================");
     }
 
-    public void OnReloaded()
+    public static void OnReloaded()
     {
         TimerView.Unload();
         TimerView.Load();

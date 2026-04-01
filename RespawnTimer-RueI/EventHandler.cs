@@ -49,7 +49,7 @@ public class EventHandler
 
     internal static void OnRoleChanging(PlayerChangingRoleEventArgs ev)
     {
-        RespawnTimer.Singleton.OnReloaded();
+        RespawnTimer.OnReloaded();
         RefreshHint(ev.Player, ev.NewRole);
     }
 

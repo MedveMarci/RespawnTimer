@@ -62,7 +62,6 @@
         <Reference Include="Assembly-CSharp" HintPath="$(sl_REFERENCES)\Assembly-CSharp-Publicized.dll"/>
         <Reference Include="Assembly-CSharp-firstpass" HintPath="$(sl_REFERENCES)\Assembly-CSharp-firstpass.dll"/>
         <Reference Include="CommandSystem.Core" HintPath="$(sl_REFERENCES)\CommandSystem.Core.dll"/>
-        <Reference Include="HintServiceMeow" HintPath="$(labapi_plugins)\HintServiceMeow.dll"/>
         <Reference Include="UnityEngine" HintPath="$(sl_REFERENCES)\UnityEngine.dll"/>
         <Reference Include="UnityEngine.CoreModule" HintPath="$(sl_REFERENCES)\UnityEngine.CoreModule.dll"/>
         <Reference Include="UnityEngine.PhysicsModule" HintPath="$(sl_REFERENCES)\UnityEngine.PhysicsModule.dll"/>
@@ -72,6 +71,7 @@
         <Reference Include="YamlDotNet" HintPath="$(sl_REFERENCES)\YamlDotNet.dll"/>
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="HintServiceMeow" Version="5.5.0" />
         <PackageReference Include="Northwood.LabAPI" Version="1.1.6.1" />
         <PackageReference Include="System.IO.Compression" Version="4.3.0" />
         <PackageReference Include="System.Text.Json" Version="10.0.5" />

@@ -1,28 +1,107 @@
-# RespawnTimer ![Downloads](https://img.shields.io/github/downloads/MedveMarci/RespawnTimer/total) <a href="https://github.com/KenleyundLeon/DeltaPatch"><img src="https://image2url.com/images/1759565889245-ff2e02c2-1f19-4f72-bc06-43a3b77fb4bd.png"></a>
+# RespawnTimer
 
-A SCP: Secret Laboratory LabApi plugin that shows when the next respawn wave will happen.
+![Downloads](https://img.shields.io/github/downloads/MedveMarci/RespawnTimer/total)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Framework](https://img.shields.io/badge/.NET-4.8-purple)
+![License](https://img.shields.io/badge/license-MIT-green)
+<a href="https://github.com/KenleyundLeon/DeltaPatch"><img src="https://image2url.com/images/1759565889245-ff2e02c2-1f19-4f72-bc06-43a3b77fb4bd.png"></a>
 
-# Features
+> **SCP: Secret Laboratory LabAPI plugin** that shows when the next respawn wave will happen.
 
-- Fully customizable timer that may show additional info, like round time, server TPS, amount of spectators, enabled
-  generators etc.
-- Different timer interface depending on a player group name.
-- Option for adding multiple custom texts (hints) to the interface, where you can put advertisements and/or gameplay
-  hints for players.
-- Option for hiding the timer interface (Server-Specific Setting)
-- Compatible with [HintServiceMeow-LabApi](https://github.com/MeowServer/HintServiceMeow/releases/latest), [RueI](https://github.com/pawslee/RueI) and Base Game Hint System.
+## Support
 
-# Configuration
+<a href='https://discord.gg/KmpA8cfaSA'><img src='https://www.allkpop.com/upload/2021/01/content/262046/1611711962-discord-button.png' height="80"></a>
 
-When you first install the plugin, the `DefaultTimer` folder will be automatically downloaded. You are free to edit the
-config files inside this directory as you see fit. You can change how the timer looks like, hints etc. Removing
-`DefaultTimer` folder will redownload it once again after server restart.
+---
 
-# For Support
-<div align="left">
-<a href='https://discord.gg/KmpA8cfaSA'><img src='https://www.allkpop.com/upload/2021/01/content/262046/1611711962-discord-button.png' height="100"></a>
-</div>
+## Features
 
-# Credits
+- **Fully customizable timer** — displays round time, server TPS, spectator count, active generators and more
+- **Custom hints** — add advertisements or gameplay tips that cycle through the interface
+- **Toggle per player** — players can show or hide the timer via Server-Specific Settings
+- **Multiple variants** — compatible with [HintServiceMeow](https://github.com/MeowServer/HintServiceMeow/releases/latest), [RueI](https://github.com/pawslee/RueI) and the base game hint system
+- **Public API** — full C# API for other plugins to register custom placeholders
 
-* Original plugin made by Michal78900
+---
+
+## Installation
+
+1. Download the release that matches your setup from [GitHub Releases](https://github.com/MedveMarci/RespawnTimer/releases/latest):
+   - `RespawnTimer.dll` — base game hint system
+   - `RespawnTimer-HSM.dll` — HintServiceMeow
+   - `RespawnTimer-RueI.dll` — RueI
+2. Place the `.dll` in your server's plugins folder.
+   - Linux: `~/.config/SCP Secret Laboratory/LabAPI/plugins/global/`
+   - Windows: `%appdata%/SCP Secret Laboratory/LabAPI/plugins/global/`
+3. Start the server — timer files are downloaded automatically.
+
+---
+
+## Configuration
+
+Timer files are stored in:
+- Linux: `~/.config/SCP Secret Laboratory/LabAPI/configs/RespawnTimer/`
+- Windows: `%appdata%/SCP Secret Laboratory/LabAPI/configs/RespawnTimer/`
+
+```
+configs/
+└── RespawnTimer/
+    ├── TimerBeforeSpawn.txt
+    ├── TimerDuringSpawn.txt
+    ├── Properties.yml
+    └── Hints.txt
+```
+
+On first launch all required files are downloaded automatically. If a single file is missing, only that file is re-downloaded.
+
+> **Upgrading from an older version?** The plugin will automatically migrate your files from the old `DefaultTimer/` folder to the new location.
+
+---
+
+## Placeholders
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{cminutes}` / `{cseconds}` | Chaos Insurgency spawn countdown |
+| `{nminutes}` / `{nseconds}` | NTF spawn countdown |
+| `{mcminutes}` / `{mcseconds}` | Mini CI spawn countdown |
+| `{mnminutes}` / `{mnseconds}` | Mini NTF spawn countdown |
+| `{mctoken}` / `{mntoken}` | Mini wave respawn tokens |
+| `{sminutes}` / `{sseconds}` | Spawn countdown during wave (all factions) |
+| `{round_hours}` / `{round_minutes}` / `{round_seconds}` | Current round time |
+| `{spectators_num}` | Number of spectators |
+| `{team}` | Next spawning team name |
+| `{warhead_status}` | Current warhead status |
+| `{detonation_time}` | Warhead detonation countdown |
+| `{generator_engaged}` / `{generator_count}` | Generator counts |
+| `{tps}` / `{tickrate}` | Server TPS and tickrate |
+| `{hint}` | Current cycling hint from `Hints.txt` |
+| `{RANDOM_COLOR}` | Random hex color code |
+
+---
+
+## API
+
+Other plugins can register custom placeholders via `TimerAPI`:
+
+```csharp
+// Register a custom placeholder
+TimerAPI.RegisterProperty("my_placeholder", player => player.Nickname);
+
+// Unregister it
+TimerAPI.UnregisterProperty("my_placeholder");
+```
+
+Once registered, `{my_placeholder}` can be used in `TimerBeforeSpawn.txt` and `TimerDuringSpawn.txt`. The value provider receives the **spectated player** as the argument.
+
+| Method | Description |
+|--------|-------------|
+| `RegisterProperty(string placeholder, Func<Player, string> valueProvider)` | Registers a new custom placeholder |
+| `UnregisterProperty(string placeholder)` | Removes a previously registered placeholder |
+
+---
+
+## Credits
+
+- Original plugin by [Michal78900](https://github.com/Michal78900)
+- Maintained by **MedveMarci**

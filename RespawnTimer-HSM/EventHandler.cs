@@ -63,11 +63,11 @@ public class EventHandler
             return;
         }
 
-        if (!TimerView.TryGetTimerForPlayer(Player.Get(player.PlayerId), out var timerView)) return;
+        if (TimerView.Instance is null) return;
         if (display.TryGetHint("RespawnTimer", out var hint)) return;
         hint = new Hint
         {
-            AutoText = timerView.GetText,
+            AutoText = TimerView.Instance.GetText,
             SyncSpeed = HintSyncSpeed.Fastest,
             Id = "RespawnTimer"
         };
@@ -104,7 +104,7 @@ public class EventHandler
         while (true)
         {
             yield return Timing.WaitForSeconds(1f);
-            foreach (var timerView in TimerView.CachedTimers.Values) timerView.IncrementHintInterval();
+            TimerView.Instance?.IncrementHintInterval();
             if (RoundSummary.singleton.IsRoundEnded) break;
         }
     }

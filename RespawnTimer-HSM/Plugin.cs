@@ -27,7 +27,7 @@ public class RespawnTimer : Plugin<Config>
     public static string RespawnTimerDirectoryPath { get; private set; }
 
     private static readonly string[] RequiredFiles =
-        ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Properties.yml", "Hints.txt"];
+        ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Hints.txt"];
 
     public override string Name => "RespawnTimer-HSM";
     public override string Description => "A customizable respawn timer for SCP:SL.";

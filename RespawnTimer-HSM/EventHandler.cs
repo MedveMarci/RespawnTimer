@@ -82,9 +82,6 @@ public class EventHandler
             if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
                 switch (WaveManager._nextWave.TargetFaction)
                 {
-                    case Faction.SCP:
-                        TimerView.ShOffset -= 1;
-                        break;
                     case Faction.FoundationEnemy:
                         TimerView.CiOffset -= 1;
                         break;
@@ -124,6 +121,5 @@ public class EventHandler
     {
         TimerView.CiOffset = 14f;
         TimerView.NtfOffset = 18f;
-        TimerView.ShOffset = 15f;
     }
 }

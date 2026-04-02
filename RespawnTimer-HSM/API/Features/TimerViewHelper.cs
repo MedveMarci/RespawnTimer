@@ -7,9 +7,7 @@ using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
 using Respawning.Waves;
-using RespawnTimer.API;
 using RespawnTimer.Enums;
-using RespawnTimer.Integrations;
 using UnityEngine;
 
 namespace RespawnTimer.API.Features;
@@ -18,7 +16,6 @@ public partial class TimerView
 {
     public static float CiOffset { get; set; } = 14f;
     public static float NtfOffset { get; set; } = 18f;
-    public static float ShOffset { get; set; } = 15f;
 
     private void SetAllProperties(ReferenceHub hub, int? spectatorCount = null)
     {
@@ -60,9 +57,6 @@ public partial class TimerView
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
             switch (WaveManager._nextWave.TargetFaction)
             {
-                case Faction.SCP:
-                    ReplaceTime("s", TimeSpan.FromSeconds(ShOffset));
-                    break;
                 case Faction.FoundationEnemy:
                     ReplaceTime("s", TimeSpan.FromSeconds(CiOffset));
                     break;

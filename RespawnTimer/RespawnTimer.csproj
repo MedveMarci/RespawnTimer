@@ -73,6 +73,7 @@
         <PackageReference Include="System.IO.Compression" Version="4.3.0" />
         <PackageReference Include="System.Text.Json" Version="10.0.5" />
         <PackageReference Include="System.Net.Http" Version="4.3.4"/>
+        <PackageReference Include="YamlDotNet" Version="16.0.0" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

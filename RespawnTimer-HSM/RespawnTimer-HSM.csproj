@@ -68,7 +68,6 @@
         <Reference Include="Mirror" HintPath="$(sl_references)\Mirror.dll"/>
         <Reference Include="LabApi" HintPath="$(sl_references)\LabApi.dll"/>
         <Reference Include="NorthwoodLib" HintPath="$(sl_references)\NorthwoodLib.dll"/>
-        <Reference Include="YamlDotNet" HintPath="$(sl_references)\YamlDotNet.dll"/>
         <Reference Include="HintServiceMeow" HintPath="$(labapi_plugins)\HintServiceMeow.dll"/>
     </ItemGroup>
     <ItemGroup>
@@ -76,6 +75,7 @@
         <PackageReference Include="System.IO.Compression" Version="4.3.0" />
         <PackageReference Include="System.Text.Json" Version="10.0.5" />
         <PackageReference Include="System.Net.Http" Version="4.3.4"/>
+        <PackageReference Include="YamlDotNet" Version="16.0.0" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

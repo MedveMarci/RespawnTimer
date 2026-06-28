@@ -27,7 +27,6 @@ public class RespawnTimer : Plugin<Config>
         ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Hints.txt"];
 
     private EventHandler _eventHandler;
-    public string githubRepo = "MedveMarci/RespawnTimer";
     public static string RespawnTimerDirectoryPath { get; private set; }
 
     public override string Name => "RespawnTimer-RueI";

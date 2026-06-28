@@ -1,10 +1,9 @@
 # RespawnTimer
 
 ![Downloads](https://img.shields.io/github/downloads/MedveMarci/RespawnTimer/total)
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+[![Version](https://img.shields.io/github/v/release/MedveMarci/RespawnTimer?&label=Version&color=blue)](https://github.com/MedveMarci/AutoEvent/releases/latest)
 ![Framework](https://img.shields.io/badge/.NET-4.8-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
-<a href="https://github.com/KenleyundLeon/DeltaPatch"><img src="https://image2url.com/images/1759565889245-ff2e02c2-1f19-4f72-bc06-43a3b77fb4bd.png"></a>
 
 > **SCP: Secret Laboratory LabAPI plugin** that shows when the next respawn wave will happen.
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LabApi.Loader;
+using LabApi.Loader.Features.Plugins;
 using RespawnTimer.ApiFeatures;
 
 namespace UncomplicatedCustomRoles.Integrations;
@@ -15,19 +17,20 @@ public static class DynamicInvoke
     private static readonly Dictionary<string, Assembly> _assemblies = new();
 
     /// <summary>
-    /// Get the <see cref="MethodInfo"/> of a method or property from a specified plugin.<br></br>
-    /// '_get' and '_set' will load the getter and setter of a property respectively.
+    ///     Get the <see cref="MethodInfo" /> of a method or property from a specified plugin.<br></br>
+    ///     '_get' and '_set' will load the getter and setter of a property respectively.
     /// </summary>
     /// <param name="plugin"></param>
     /// <param name="address"></param>
     /// <param name="isLabapi"></param>
     /// <returns></returns>
-    public static MethodInfo GetMethod(string plugin, string address, bool isLabapi = false, int methodCounter = -1, string[] requiredParamNames = null)
+    public static MethodInfo GetMethod(string plugin, string address, bool isLabapi = false, int methodCounter = -1,
+        string[] requiredParamNames = null, Type[] requiredParamTypes = null)
     {
-        if (_methods.TryGetValue(address, out MethodInfo method))
+        if (_methods.TryGetValue(address, out var method))
             return method;
 
-        if (!_assemblies.TryGetValue(plugin, out Assembly assembly))
+        if (!_assemblies.TryGetValue(plugin, out var assembly))
         {
             assembly = isLabapi ? GetLabAPIAssembly(plugin) : GetExiledAssembly(plugin);
             _assemblies.Add(plugin, assembly);
@@ -36,10 +39,10 @@ public static class DynamicInvoke
         if (assembly is null)
             return null; // Soft dependency not found - chill
 
-        string argument = address.Split('.')?.Last();
-        string stringType = address.Replace($".{argument}", string.Empty);
+        var argument = address.Split('.')?.Last();
+        var stringType = address.Replace($".{argument}", string.Empty);
 
-        if (!_types.TryGetValue(stringType, out Type type))
+        if (!_types.TryGetValue(stringType, out var type))
         {
             type = assembly.GetType(stringType);
             _types.Add(stringType, type);
@@ -53,13 +56,14 @@ public static class DynamicInvoke
 
         if (argument.Contains('_')) // Handle <property>_get and <property>_set cases - Element IS a property
         {
-            string stringProperty = argument.Split('_')[0]; // Cannot be null
-            PropertyInfo property = type.GetProperty(stringProperty);
+            var stringProperty = argument.Split('_')[0]; // Cannot be null
+            var property = type.GetProperty(stringProperty);
             MethodInfo resultMethod;
 
             if (property is null)
             {
-                LogManager.Warn($"[DynamicInvoke] Failed to locate property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn(
+                    $"[DynamicInvoke] Failed to locate property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
@@ -70,43 +74,54 @@ public static class DynamicInvoke
 
             if (resultMethod is null)
             {
-                LogManager.Warn($"[DynamicInvoke] Failed to locate method _get() or _set() in property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn(
+                    $"[DynamicInvoke] Failed to locate method _get() or _set() in property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
             _methods.Add(address, resultMethod);
             return resultMethod;
-        } 
+        }
         else // Normal method
         {
-            IEnumerable<MethodInfo> resultMethods = type.GetMethods().Where(m => m.Name == argument);
+            var resultMethods = type.GetMethods().Where(m => m.Name == argument);
             MethodInfo resultMethod;
-                
-            if (methodCounter != -1 || (requiredParamNames is not null && requiredParamNames.Length > 0))
+
+            if (methodCounter != -1 || (requiredParamNames is not null && requiredParamNames.Length > 0) ||
+                (requiredParamTypes is not null && requiredParamTypes.Length > 0))
             {
-                IEnumerable<MethodInfo> filtered = resultMethods;
+                var filtered = resultMethods;
 
                 if (methodCounter != -1)
                     filtered = filtered.Where(m => m.GetParameters().Length == methodCounter);
 
                 if (requiredParamNames is not null && requiredParamNames.Length > 0)
-                {
                     filtered = filtered.Where(m =>
                     {
                         var paramNames = m.GetParameters().Select(p => p.Name).ToArray();
-                        return requiredParamNames.All(rpn => paramNames.Contains(rpn, StringComparer.OrdinalIgnoreCase));
+                        return requiredParamNames.All(rpn =>
+                            paramNames.Contains(rpn, StringComparer.OrdinalIgnoreCase));
                     });
-                }
+
+                // Disambiguates overloads that share parameter names (e.g. Get(Player) vs Get(ReferenceHub))
+                if (requiredParamTypes is not null && requiredParamTypes.Length > 0)
+                    filtered = filtered.Where(m =>
+                    {
+                        var paramTypes = m.GetParameters().Select(p => p.ParameterType).ToArray();
+                        return requiredParamTypes.All(rpt => paramTypes.Contains(rpt));
+                    });
 
                 resultMethod = filtered.FirstOrDefault();
-            } else
+            }
+            else
             {
                 resultMethod = resultMethods.FirstOrDefault();
             }
 
             if (resultMethod is null)
             {
-                LogManager.Warn($"[DynamicInvoke] Failed to locate method {argument} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn(
+                    $"[DynamicInvoke] Failed to locate method {argument} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
@@ -119,7 +134,7 @@ public static class DynamicInvoke
     {
         try
         {
-            KeyValuePair<LabApi.Loader.Features.Plugins.Plugin, Assembly>? plugin = LabApi.Loader.PluginLoader.Plugins.FirstOrDefault(p => p.Key.Name == pluginName);
+            KeyValuePair<Plugin, Assembly>? plugin = PluginLoader.Plugins.FirstOrDefault(p => p.Key.Name == pluginName);
 
             if (plugin is not null)
                 return plugin.Value.Value;
@@ -132,12 +147,12 @@ public static class DynamicInvoke
             return null;
         }
     }
-        
+
     private static Assembly GetExiledAssembly(string pluginName)
     {
         try
         {
-            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(p => p.FullName.Contains(pluginName));
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(p => p.FullName.Contains(pluginName));
             return assembly;
         }
         catch (Exception e)

@@ -22,17 +22,17 @@ namespace RespawnTimer;
 public class RespawnTimer : Plugin<Config>
 {
     public static RespawnTimer Singleton;
-    private EventHandler _eventHandler;
-    public string githubRepo = "MedveMarci/RespawnTimer";
-    public static string RespawnTimerDirectoryPath { get; private set; }
 
     private static readonly string[] RequiredFiles =
         ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Hints.txt"];
 
+    private EventHandler _eventHandler;
+    public static string RespawnTimerDirectoryPath { get; private set; }
+
     public override string Name => "RespawnTimer";
     public override string Description => "A customizable respawn timer for SCP:SL.";
     public override string Author => "MedveMarci";
-    public override Version Version => new(1, 3, 0);
+    public override Version Version => new(1, 4, 0);
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     public override void Enable()
@@ -195,7 +195,7 @@ public class RespawnTimer : Plugin<Config>
                     continue;
                 }
 
-                entry.ExtractToFile(Path.Combine(RespawnTimerDirectoryPath, fileName), overwrite: false);
+                entry.ExtractToFile(Path.Combine(RespawnTimerDirectoryPath, fileName), false);
                 LogManager.Info($"[RespawnTimer] Extracted: {fileName}");
             }
         }

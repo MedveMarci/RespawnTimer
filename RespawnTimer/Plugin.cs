@@ -32,7 +32,7 @@ public class RespawnTimer : Plugin<Config>
     public override string Name => "RespawnTimer";
     public override string Description => "A customizable respawn timer for SCP:SL.";
     public override string Author => "MedveMarci";
-    public override Version Version => new(1, 4, 0);
+    public override Version Version => new(1, 4, 1);
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     public override void Enable()

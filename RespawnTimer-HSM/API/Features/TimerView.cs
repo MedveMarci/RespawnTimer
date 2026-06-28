@@ -84,10 +84,10 @@ public partial class TimerView
     {
         var changed = false;
         var raw = YamlParser.Deserializer.Deserialize<Dictionary<object, object>>(propertiesText) ?? new();
-        var rawKeys = new HashSet<string>(raw.Keys.Select(key => key.ToString()), StringComparer.OrdinalIgnoreCase);
+        var rawKeys = new HashSet<string>(raw.Keys.Select(key => NormalizeKey(key.ToString())), StringComparer.OrdinalIgnoreCase);
 
         foreach (var property in typeof(Properties).GetProperties())
-            if (!rawKeys.Contains(property.Name))
+            if (!rawKeys.Contains(NormalizeKey(property.Name)))
                 changed = true;
 
         foreach (var entry in new Properties().WarheadStatus)
@@ -99,6 +99,10 @@ public partial class TimerView
 
         return changed;
     }
+
+    // Properties.yml is serialized with an underscored naming convention (e.g. "leading_zeros"),
+    // so strip underscores before comparing against the PascalCase property names.
+    private static string NormalizeKey(string key) => key?.Replace("_", string.Empty) ?? string.Empty;
 
     public static void Unload()
     {

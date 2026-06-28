@@ -1,3 +1,8 @@
+## [1.4.1]
+
+### Fixed
+- Properties.yml file fixer erroneously triggering on every load due to naming convention mismatch.
+
 ## [1.4.0]
 
 ### Added

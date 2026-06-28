@@ -1,4 +1,4 @@
-## [1.3.1]
+## [1.4.0]
 
 ### Added
 - **UCR (Uncomplicated Custom Roles) integration** for displaying if the spectated player is a custom role. Add `{custom_role}` tag into the .txt files.

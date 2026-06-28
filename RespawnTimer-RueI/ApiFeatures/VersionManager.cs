@@ -15,7 +15,7 @@ internal static class VersionManager
     {
         Task.Run(async () =>
         {
-            var name = RespawnTimer.Singleton.Name;
+            const string name = "RespawnTimer";
             var current = RespawnTimer.Singleton.Version;
 
             try

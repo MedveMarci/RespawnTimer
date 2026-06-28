@@ -16,8 +16,6 @@ namespace RespawnTimer.API.Features;
 
 public partial class TimerView
 {
-    public static TimerView Instance { get; private set; }
-
     private readonly StringBuilder _stringBuilder = new(1024);
 
     private TimerView(string beforeRespawnString, string duringRespawnString, Properties properties, List<string> hints)
@@ -28,11 +26,13 @@ public partial class TimerView
         Hints = hints;
     }
 
+    public static TimerView Instance { get; private set; }
+
     private int HintIndex { get; set; }
     private int HintInterval { get; set; }
     internal string BeforeRespawnString { get; }
     internal string DuringRespawnString { get; }
-    private Properties Properties { get; }
+    internal Properties Properties { get; }
     private List<string> Hints { get; }
 
     public static void Load()
@@ -60,6 +60,14 @@ public partial class TimerView
             File.WriteAllText(propertiesPath, YamlParser.Serializer.Serialize(new Properties()));
         }
 
+        var propertiesText = File.ReadAllText(propertiesPath, Encoding.UTF8);
+        var properties = YamlParser.Deserializer.Deserialize<Properties>(propertiesText);
+        if (EnsureProperties(properties, propertiesText))
+        {
+            LogManager.Warn("Properties.yml was missing some entries. Adding missing defaults...");
+            File.WriteAllText(propertiesPath, YamlParser.Serializer.Serialize(properties));
+        }
+
         var hintsPath = Path.Combine(directoryPath, "Hints.txt");
         List<string> hints = [];
         if (File.Exists(hintsPath))
@@ -68,8 +76,28 @@ public partial class TimerView
         Instance = new TimerView(
             File.ReadAllText(timerBeforePath, Encoding.UTF8),
             File.ReadAllText(timerDuringPath, Encoding.UTF8),
-            YamlParser.Deserializer.Deserialize<Properties>(File.ReadAllText(propertiesPath, Encoding.UTF8)),
+            properties,
             hints);
+    }
+
+    private static bool EnsureProperties(Properties properties, string propertiesText)
+    {
+        var changed = false;
+        var raw = YamlParser.Deserializer.Deserialize<Dictionary<object, object>>(propertiesText) ?? new();
+        var rawKeys = new HashSet<string>(raw.Keys.Select(key => key.ToString()), StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in typeof(Properties).GetProperties())
+            if (!rawKeys.Contains(property.Name))
+                changed = true;
+
+        foreach (var entry in new Properties().WarheadStatus)
+        {
+            if (properties.WarheadStatus.ContainsKey(entry.Key)) continue;
+            properties.WarheadStatus[entry.Key] = entry.Value;
+            changed = true;
+        }
+
+        return changed;
     }
 
     public static void Unload()

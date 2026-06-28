@@ -5,5 +5,6 @@ public enum WarheadStatusType
     NotArmed,
     Armed,
     InProgress,
+    DeadManInProgress,
     Detonated
 }

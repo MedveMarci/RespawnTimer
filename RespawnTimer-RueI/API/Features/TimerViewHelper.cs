@@ -7,9 +7,7 @@ using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
 using Respawning.Waves;
-using RespawnTimer.API;
 using RespawnTimer.Enums;
-using RespawnTimer.Integrations;
 using UnityEngine;
 
 namespace RespawnTimer.API.Features;
@@ -58,18 +56,21 @@ public partial class TimerView
         var miniCiTime = TimeSpan.FromSeconds(miniCi?.Timer.TimeLeft ?? 0);
         var miniNtfTime = TimeSpan.FromSeconds(miniNtf?.Timer.TimeLeft ?? 0);
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-            switch (WaveManager._nextWave.TargetFaction)
-            {
-                case Faction.SCP:
-                    ReplaceTime("s", TimeSpan.FromSeconds(ShOffset));
-                    break;
-                case Faction.FoundationEnemy:
-                    ReplaceTime("s", TimeSpan.FromSeconds(CiOffset));
-                    break;
-                case Faction.FoundationStaff:
-                    ReplaceTime("s", TimeSpan.FromSeconds(NtfOffset));
-                    break;
-            }
+        {
+            var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+            if (registeredWave is not null)
+                ReplaceTime("s", TimeSpan.FromSeconds(registeredWave.Offset));
+            else
+                switch (WaveManager._nextWave.TargetFaction)
+                {
+                    case Faction.FoundationEnemy:
+                        ReplaceTime("s", TimeSpan.FromSeconds(CiOffset));
+                        break;
+                    case Faction.FoundationStaff:
+                        ReplaceTime("s", TimeSpan.FromSeconds(NtfOffset));
+                        break;
+                }
+        }
 
         if (ciTime >= TimeSpan.Zero)
             ReplaceTime("c", ciTime);
@@ -92,6 +93,19 @@ public partial class TimerView
 
         _stringBuilder.Replace("{mntoken}", $"{miniNtfToken}");
         _stringBuilder.Replace("{mctoken}", $"{miniCiToken}");
+
+        foreach (var registeredWave in TimerAPI.Waves.Values)
+        {
+            if (string.IsNullOrEmpty(registeredWave.Placeholder)) continue;
+            var instance = waves.FirstOrDefault(wave => registeredWave.WaveType.IsInstanceOfType(wave));
+            var time = TimeSpan.FromSeconds(instance?.Timer.TimeLeft ?? 0);
+            if (time >= TimeSpan.Zero)
+                ReplaceTime(registeredWave.Placeholder, time);
+            else
+                _stringBuilder
+                    .Replace($"{{{registeredWave.Placeholder}minutes}}", "00")
+                    .Replace($"{{{registeredWave.Placeholder}seconds}}", "00");
+        }
 
         return;
 
@@ -126,7 +140,10 @@ public partial class TimerView
                 _stringBuilder.Replace("{team}", Properties.MiniCi);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+                if (registeredWave is not null)
+                    _stringBuilder.Replace("{team}", registeredWave.DisplayNameProvider() ?? string.Empty);
+                break;
         }
     }
 
@@ -150,7 +167,9 @@ public partial class TimerView
     private static WarheadStatusType GetWarheadStatus()
     {
         return Warhead.IsDetonationInProgress
-            ? Warhead.IsDetonated ? WarheadStatusType.Detonated : WarheadStatusType.InProgress
+            ? Warhead.IsDetonated ? WarheadStatusType.Detonated :
+            Warhead.ScenarioType == WarheadScenarioType.DeadmanSwitch ? WarheadStatusType.DeadManInProgress :
+            WarheadStatusType.InProgress
             : Warhead.LeverStatus
                 ? WarheadStatusType.Armed
                 : WarheadStatusType.NotArmed;
@@ -164,8 +183,8 @@ public partial class TimerView
 
     private void SetTpsAndTickrate()
     {
-        _stringBuilder.Replace("{tps}", Math.Round(1.0 / Time.smoothDeltaTime).ToString(CultureInfo.InvariantCulture));
-        _stringBuilder.Replace("{tickrate}", Application.targetFrameRate.ToString());
+        _stringBuilder.Replace("{tps}", Server.Tps.ToString(CultureInfo.InvariantCulture));
+        _stringBuilder.Replace("{tickrate}", Server.MaxTps.ToString(CultureInfo.InvariantCulture));
     }
 
     private void SetHint()

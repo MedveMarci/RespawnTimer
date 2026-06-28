@@ -6,6 +6,7 @@ using LabApi.Features.Wrappers;
 using MEC;
 using PlayerRoles;
 using Respawning;
+using RespawnTimer.API;
 using RespawnTimer.API.Features;
 using RespawnTimer.ApiFeatures;
 using UserSettings.ServerSpecific;
@@ -24,7 +25,7 @@ public class EventHandler
         if (_hintsCoroutine.IsRunning) Timing.KillCoroutines(_hintsCoroutine);
         try
         {
-            ApiManager.CheckForUpdates();
+            VersionManager.CheckForUpdates();
         }
         catch (Exception ex)
         {
@@ -70,17 +71,21 @@ public class EventHandler
         {
             yield return Timing.WaitForSeconds(1f);
             if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
-                switch (WaveManager._nextWave.TargetFaction)
-                {
-                    case Faction.FoundationEnemy:
-                        TimerView.CiOffset -= 1;
-                        break;
-                    case Faction.FoundationStaff:
-                        TimerView.NtfOffset -= 1;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+            {
+                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+                if (registeredWave is not null)
+                    registeredWave.Offset -= 1;
+                else
+                    switch (WaveManager._nextWave.TargetFaction)
+                    {
+                        case Faction.FoundationEnemy:
+                            TimerView.CiOffset -= 1;
+                            break;
+                        case Faction.FoundationStaff:
+                            TimerView.NtfOffset -= 1;
+                            break;
+                    }
+            }
 
             if (TimerView.Instance is not null)
                 foreach (var player in Players)
@@ -119,5 +124,7 @@ public class EventHandler
     {
         TimerView.CiOffset = 14f;
         TimerView.NtfOffset = 18f;
+        foreach (var registeredWave in TimerAPI.Waves.Values)
+            registeredWave.Offset = registeredWave.SpawnDuration;
     }
 }

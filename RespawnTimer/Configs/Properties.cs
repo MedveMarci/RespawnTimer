@@ -24,6 +24,9 @@ public sealed class Properties
     [Description("The Mini Chaos Insurgency display name.")]
     public string MiniCi { get; private set; } = "<color=green>Mini Chaos Insurgency</color>";
 
+    [Description("CustomRole display name if UCR is available.")]
+    public string CustomRole { get; private set; } = "Custom Role: {custom_role_name}";
+
     [Description("The display names for warhead statuses:")]
     public Dictionary<WarheadStatusType, string> WarheadStatus { get; private set; } = new()
     {
@@ -38,6 +41,9 @@ public sealed class Properties
         },
         {
             WarheadStatusType.Detonated, "<color=#640000>Detonated</color>"
+        },
+        {
+            WarheadStatusType.DeadManInProgress, "<color=red>DeadMan In Progress - </color> {detonation_time} s"
         }
     };
 }

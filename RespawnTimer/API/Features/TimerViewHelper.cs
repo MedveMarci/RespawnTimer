@@ -97,13 +97,26 @@ public partial class TimerView
         {
             if (string.IsNullOrEmpty(registeredWave.Placeholder)) continue;
             var instance = waves.FirstOrDefault(wave => registeredWave.WaveType.IsInstanceOfType(wave));
+            var tokenValue = 0;
+            if (instance is not null)
+            {
+                var prop = registeredWave.WaveType.GetProperty("RespawnTokens");
+                if (prop != null)
+                {
+                    var val = prop.GetValue(instance);
+                    if (val is int iv) tokenValue = iv;
+                    else if (val != null && int.TryParse(val.ToString(), out var parsed)) tokenValue = parsed;
+                }
+            }
+            _stringBuilder.Replace($"{{{registeredWave.Placeholder}token}}", $"{tokenValue}");
             var time = TimeSpan.FromSeconds(instance?.Timer.TimeLeft ?? 0);
             if (time >= TimeSpan.Zero)
                 ReplaceTime(registeredWave.Placeholder, time);
             else
                 _stringBuilder
                     .Replace($"{{{registeredWave.Placeholder}minutes}}", "00")
-                    .Replace($"{{{registeredWave.Placeholder}seconds}}", "00");
+                    .Replace($"{{{registeredWave.Placeholder}seconds}}", "00")
+                    .Replace($"{{{registeredWave.Placeholder}token}}", "0");
         }
 
         return;

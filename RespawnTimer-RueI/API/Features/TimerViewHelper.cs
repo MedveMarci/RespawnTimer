@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using GameCore;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
 using Respawning.Waves;
+using Respawning.Waves.Generic;
 using RespawnTimer.Enums;
 using UnityEngine;
 
@@ -15,7 +18,9 @@ namespace RespawnTimer.API.Features;
 public partial class TimerView
 {
     public static float CiOffset { get; set; } = 14f;
+
     public static float NtfOffset { get; set; } = 18f;
+
     public static float ShOffset { get; set; } = 15f;
 
     private void SetAllProperties(ReferenceHub hub, int? spectatorCount = null)
@@ -23,6 +28,7 @@ public partial class TimerView
         SetRoundTime();
         SetMinutesAndSeconds();
         SetSpawnableTeam();
+        SetNextPossibleTeam();
         SetSpectatorCountAndSpawnChance(spectatorCount);
         SetWarheadStatus();
         SetGeneratorCount();
@@ -33,31 +39,28 @@ public partial class TimerView
 
     private void SetRoundTime()
     {
-        var hours = RoundStart.RoundLength.Hours;
-        _stringBuilder.Replace("{round_hours}",
-            $"{(Properties.LeadingZeros && hours < 10 ? "0" : string.Empty)}{hours}");
-        var minutes = RoundStart.RoundLength.Minutes;
-        _stringBuilder.Replace("{round_minutes}",
-            $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
-        var seconds = RoundStart.RoundLength.Seconds;
-        _stringBuilder.Replace("{round_seconds}",
-            $"{(Properties.LeadingZeros && seconds < 10 ? "0" : string.Empty)}{seconds}");
+        int hours = RoundStart.RoundLength.Hours;
+        _stringBuilder.Replace("{round_hours}", $"{(Properties.LeadingZeros && hours < 10 ? "0" : string.Empty)}{hours}");
+        int minutes = RoundStart.RoundLength.Minutes;
+        _stringBuilder.Replace("{round_minutes}", $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
+        int seconds = RoundStart.RoundLength.Seconds;
+        _stringBuilder.Replace("{round_seconds}", $"{(Properties.LeadingZeros && seconds < 10 ? "0" : string.Empty)}{seconds}");
     }
 
     private void SetMinutesAndSeconds()
     {
-        var waves = WaveManager.Waves.OfType<TimeBasedWave>().ToList();
-        var ntf = waves.FirstOrDefault(wave => wave is NtfSpawnWave);
-        var ci = waves.FirstOrDefault(wave => wave is ChaosSpawnWave);
-        var miniNtf = waves.FirstOrDefault(wave => wave is NtfMiniWave);
-        var miniCi = waves.FirstOrDefault(wave => wave is ChaosMiniWave);
-        var ciTime = TimeSpan.FromSeconds(ci?.Timer.TimeLeft ?? 0);
-        var ntfTime = TimeSpan.FromSeconds(ntf?.Timer.TimeLeft ?? 0);
-        var miniCiTime = TimeSpan.FromSeconds(miniCi?.Timer.TimeLeft ?? 0);
-        var miniNtfTime = TimeSpan.FromSeconds(miniNtf?.Timer.TimeLeft ?? 0);
+        List<TimeBasedWave> waves = WaveManager.Waves.OfType<TimeBasedWave>().ToList();
+        TimeBasedWave ntf = waves.FirstOrDefault(wave => wave is NtfSpawnWave);
+        TimeBasedWave ci = waves.FirstOrDefault(wave => wave is ChaosSpawnWave);
+        TimeBasedWave miniNtf = waves.FirstOrDefault(wave => wave is NtfMiniWave);
+        TimeBasedWave miniCi = waves.FirstOrDefault(wave => wave is ChaosMiniWave);
+        TimeSpan ciTime = TimeSpan.FromSeconds(ci?.Timer.TimeLeft ?? 0);
+        TimeSpan ntfTime = TimeSpan.FromSeconds(ntf?.Timer.TimeLeft ?? 0);
+        TimeSpan miniCiTime = TimeSpan.FromSeconds(miniCi?.Timer.TimeLeft ?? 0);
+        TimeSpan miniNtfTime = TimeSpan.FromSeconds(miniNtf?.Timer.TimeLeft ?? 0);
         if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
         {
-            var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+            RegisteredWave registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
             if (registeredWave is not null)
                 ReplaceTime("s", TimeSpan.FromSeconds(registeredWave.Offset));
             else
@@ -88,23 +91,34 @@ public partial class TimerView
             ReplaceTime("mn", miniNtfTime);
         else
             _stringBuilder.Replace("{mnminutes}", "00").Replace("{mnseconds}", "00");
-        var miniNtfToken = waves.OfType<NtfMiniWave>().Sum(wave => wave.RespawnTokens);
-        var miniCiToken = waves.OfType<ChaosMiniWave>().Sum(wave => wave.RespawnTokens);
+        int miniNtfToken = waves.OfType<NtfMiniWave>().Sum(wave => wave.RespawnTokens);
+        int miniCiToken = waves.OfType<ChaosMiniWave>().Sum(wave => wave.RespawnTokens);
 
         _stringBuilder.Replace("{mntoken}", $"{miniNtfToken}");
         _stringBuilder.Replace("{mctoken}", $"{miniCiToken}");
 
-        foreach (var registeredWave in TimerAPI.Waves.Values)
+        foreach (RegisteredWave registeredWave in TimerAPI.Waves.Values)
         {
             if (string.IsNullOrEmpty(registeredWave.Placeholder)) continue;
-            var instance = waves.FirstOrDefault(wave => registeredWave.WaveType.IsInstanceOfType(wave));
-            var time = TimeSpan.FromSeconds(instance?.Timer.TimeLeft ?? 0);
+            TimeBasedWave instance = waves.FirstOrDefault(wave => registeredWave.WaveType.IsInstanceOfType(wave));
+            int tokenValue = 0;
+            if (instance is not null)
+            {
+                PropertyInfo prop = registeredWave.WaveType.GetProperty("RespawnTokens");
+                if (prop != null)
+                {
+                    object val = prop.GetValue(instance);
+                    if (val is int iv) tokenValue = iv;
+                    else if (val != null && int.TryParse(val.ToString(), out int parsed)) tokenValue = parsed;
+                }
+            }
+
+            _stringBuilder.Replace($"{{{registeredWave.Placeholder}token}}", $"{tokenValue}");
+            TimeSpan time = TimeSpan.FromSeconds(instance?.Timer.TimeLeft ?? 0);
             if (time >= TimeSpan.Zero)
                 ReplaceTime(registeredWave.Placeholder, time);
             else
-                _stringBuilder
-                    .Replace($"{{{registeredWave.Placeholder}minutes}}", "00")
-                    .Replace($"{{{registeredWave.Placeholder}seconds}}", "00");
+                _stringBuilder.Replace($"{{{registeredWave.Placeholder}minutes}}", "00").Replace($"{{{registeredWave.Placeholder}seconds}}", "00").Replace($"{{{registeredWave.Placeholder}token}}", "0");
         }
 
         return;
@@ -112,67 +126,68 @@ public partial class TimerView
         void ReplaceTime(string placeholder, TimeSpan? time)
         {
             if (time == null) return;
-            var totalSeconds = Math.Max(0, (int)time.Value.TotalSeconds);
-            var minutes = totalSeconds / 60;
-            var seconds = totalSeconds % 60;
-            _stringBuilder.Replace($"{{{placeholder}minutes}}",
-                $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
-            _stringBuilder.Replace($"{{{placeholder}seconds}}",
-                $"{(Properties.LeadingZeros && seconds < 10 ? "0" : string.Empty)}{seconds}");
+            int totalSeconds = Math.Max(0, (int)time.Value.TotalSeconds);
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds % 60;
+            _stringBuilder.Replace($"{{{placeholder}minutes}}", $"{(Properties.LeadingZeros && minutes < 10 ? "0" : string.Empty)}{minutes}");
+            _stringBuilder.Replace($"{{{placeholder}seconds}}", $"{(Properties.LeadingZeros && seconds < 10 ? "0" : string.Empty)}{seconds}");
         }
     }
 
     private void SetSpawnableTeam()
     {
         if (WaveManager._nextWave is null) return;
-        switch (WaveManager._nextWave)
+        string displayName = GetWaveDisplayName(WaveManager._nextWave);
+        if (displayName is not null)
+            _stringBuilder.Replace("{team}", displayName);
+    }
+
+    private void SetNextPossibleTeam()
+    {
+        // While a wave is selected or spawning it is the current team, so the next possible
+        // one is whichever of the remaining waves has the least time left on its timer.
+        SpawnableWaveBase currentWave = WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning ? WaveManager._nextWave : null;
+
+        TimeBasedWave nextWave = WaveManager.Waves.OfType<TimeBasedWave>().Where(wave => !ReferenceEquals(wave, currentWave) && CanSpawnNext(wave)).OrderBy(wave => wave.Timer.TimeLeft).FirstOrDefault();
+
+        _stringBuilder.Replace("{next_team}", (nextWave is null ? null : GetWaveDisplayName(nextWave)) ?? Properties.NoNextTeam);
+    }
+
+    // Mirrors the eligibility check WaveManager runs before initiating a respawn, minus the
+    // timer having elapsed - a wave that cannot spawn at all is not a possible next spawn.
+    private static bool CanSpawnNext(TimeBasedWave wave)
+    {
+        return wave.Configuration.IsEnabled && !wave.Timer.IsPaused && !wave.Timer.IsForcefullyPaused && wave is not ILimitedWave { RespawnTokens: <= 0 };
+    }
+
+    /// <summary>Returns the configured display name of a wave, or <see langword="null" /> if it is unknown.</summary>
+    private string GetWaveDisplayName(SpawnableWaveBase wave)
+    {
+        return wave switch
         {
-            case NtfSpawnWave:
-                _stringBuilder.Replace("{team}", Properties.Ntf);
-                break;
-            case NtfMiniWave:
-                _stringBuilder.Replace("{team}", Properties.MiniNtf);
-                break;
-            case ChaosSpawnWave:
-                _stringBuilder.Replace("{team}", Properties.Ci);
-                break;
-            case ChaosMiniWave:
-                _stringBuilder.Replace("{team}", Properties.MiniCi);
-                break;
-            default:
-                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
-                if (registeredWave is not null)
-                    _stringBuilder.Replace("{team}", registeredWave.DisplayNameProvider() ?? string.Empty);
-                break;
-        }
+            NtfMiniWave => Properties.MiniNtf,
+            ChaosMiniWave => Properties.MiniCi,
+            NtfSpawnWave => Properties.Ntf,
+            ChaosSpawnWave => Properties.Ci,
+            _ => TimerAPI.GetWave(wave) is { } registeredWave ? registeredWave.DisplayNameProvider() ?? string.Empty : null
+        };
     }
 
     private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)
     {
-        _stringBuilder.Replace("{spectators_num}",
-            spectatorCount?.ToString() ??
-            Player.ReadyList.Count(x => x.RoleBase.Team == Team.Dead && !x.IsOverwatchEnabled).ToString());
+        _stringBuilder.Replace("{spectators_num}", spectatorCount?.ToString() ?? Player.ReadyList.Count(x => x.RoleBase.Team == Team.Dead && !x.IsOverwatchEnabled).ToString());
     }
 
     private void SetWarheadStatus()
     {
-        var warheadStatus = GetWarheadStatus();
+        WarheadStatusType warheadStatus = GetWarheadStatus();
         _stringBuilder.Replace("{warhead_status}", Properties.WarheadStatus[warheadStatus]);
-        _stringBuilder.Replace("{detonation_time}",
-            Warhead.IsDetonationInProgress
-                ? Mathf.Round(Warhead.DetonationTime).ToString(CultureInfo.InvariantCulture)
-                : string.Empty);
+        _stringBuilder.Replace("{detonation_time}", Warhead.IsDetonationInProgress ? Mathf.Round(Warhead.DetonationTime).ToString(CultureInfo.InvariantCulture) : string.Empty);
     }
 
     private static WarheadStatusType GetWarheadStatus()
     {
-        return Warhead.IsDetonationInProgress
-            ? Warhead.IsDetonated ? WarheadStatusType.Detonated :
-            Warhead.ScenarioType == WarheadScenarioType.DeadmanSwitch ? WarheadStatusType.DeadManInProgress :
-            WarheadStatusType.InProgress
-            : Warhead.LeverStatus
-                ? WarheadStatusType.Armed
-                : WarheadStatusType.NotArmed;
+        return Warhead.IsDetonationInProgress ? Warhead.IsDetonated ? WarheadStatusType.Detonated : Warhead.ScenarioType == WarheadScenarioType.DeadmanSwitch ? WarheadStatusType.DeadManInProgress : WarheadStatusType.InProgress : Warhead.LeverStatus ? WarheadStatusType.Armed : WarheadStatusType.NotArmed;
     }
 
     private void SetGeneratorCount()
@@ -195,13 +210,13 @@ public partial class TimerView
 
     private void SetExternalProperties(ReferenceHub hub)
     {
-        var spectated = Player.Get(hub).CurrentlySpectating;
+        Player spectated = Player.Get(hub).CurrentlySpectating;
 
-        foreach (var kvp in TimerAPI.Properties)
+        foreach (KeyValuePair<string, Func<Player, string>> kvp in TimerAPI.Properties)
         {
-            var placeholder = kvp.Key;
-            var valueProvider = kvp.Value;
-            var value = spectated is not null ? valueProvider(spectated) : null;
+            string placeholder = kvp.Key;
+            Func<Player, string> valueProvider = kvp.Value;
+            string value = spectated is not null ? valueProvider(spectated) : null;
             _stringBuilder.Replace($"{{{placeholder}}}", value ?? string.Empty);
         }
     }

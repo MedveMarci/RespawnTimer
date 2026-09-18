@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HintServiceMeow.Core.Enum;
+using HintServiceMeow.Core.Models.Hints;
 using HintServiceMeow.Core.Utilities;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
@@ -56,16 +57,15 @@ public class EventHandler
 
     internal static void RefreshHint(Player player, RoleTypeId newRole)
     {
-        var display = PlayerDisplay.Get(player);
-        if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
-            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB)
+        PlayerDisplay display = PlayerDisplay.Get(player);
+        if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) || ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB)
         {
             display.RemoveHint("RespawnTimer");
             return;
         }
 
         if (TimerView.Instance is null) return;
-        if (display.TryGetHint("RespawnTimer", out var hint)) return;
+        if (display.TryGetHint("RespawnTimer", out AbstractHint hint)) return;
         hint = new Hint
         {
             AutoText = TimerView.Instance.GetText,
@@ -82,7 +82,7 @@ public class EventHandler
             yield return Timing.WaitForSeconds(1f);
             if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
             {
-                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+                RegisteredWave registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
                 if (registeredWave is not null)
                     registeredWave.Offset -= 1;
                 else
@@ -126,7 +126,7 @@ public class EventHandler
     {
         TimerView.CiOffset = 14f;
         TimerView.NtfOffset = 18f;
-        foreach (var registeredWave in TimerAPI.Waves.Values)
+        foreach (RegisteredWave registeredWave in TimerAPI.Waves.Values)
             registeredWave.Offset = registeredWave.SpawnDuration;
     }
 }

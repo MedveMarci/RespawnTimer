@@ -1,3 +1,11 @@
+## [1.5.0]
+
+### Added
+- `{next_team}` placeholder showing the name of the wave that can spawn next, so timers can display e.g. `Next possible spawn: {next_team}`. It reuses the colored team names from `Properties.yml` and falls back to the new `no_next_team` entry when no wave is able to spawn.
+
+### Changed
+- Missing timer files (`TimerBeforeSpawn.txt`, `TimerDuringSpawn.txt`, `Hints.txt`) are now generated locally from built-in defaults instead of being downloaded from the GitHub release.
+
 ## [1.4.1]
 
 ### Fixed

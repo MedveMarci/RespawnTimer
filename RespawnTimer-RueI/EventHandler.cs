@@ -56,18 +56,14 @@ public class EventHandler
 
     internal static void RefreshHint(Player player, RoleTypeId newRole)
     {
-        var display = RueDisplay.Get(player);
-        if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) ||
-            ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB ||
-            TimerView.Instance is null)
+        RueDisplay display = RueDisplay.Get(player);
+        if (!Round.IsRoundInProgress || newRole is not (RoleTypeId.Spectator or RoleTypeId.Overwatch) || ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(player.ReferenceHub, 1).SyncIsB || TimerView.Instance is null)
         {
             display.Remove(RespawnTimerTag);
             return;
         }
 
-        var element = new DynamicElement(
-            980f,
-            TimerView.Instance.GetText)
+        DynamicElement element = new(980f, TimerView.Instance.GetText)
         {
             UpdateInterval = TimeSpan.FromSeconds(1),
             ShowToSpectators = false
@@ -82,7 +78,7 @@ public class EventHandler
             yield return Timing.WaitForSeconds(1f);
             if (WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning)
             {
-                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
+                RegisteredWave registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
                 if (registeredWave is not null)
                     registeredWave.Offset -= 1;
                 else
@@ -126,7 +122,7 @@ public class EventHandler
     {
         TimerView.CiOffset = 14f;
         TimerView.NtfOffset = 18f;
-        foreach (var registeredWave in TimerAPI.Waves.Values)
+        foreach (RegisteredWave registeredWave in TimerAPI.Waves.Values)
             registeredWave.Offset = registeredWave.SpawnDuration;
     }
 }

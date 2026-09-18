@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using LabApi.Features.Wrappers;
 using RespawnTimer.API;
 using RespawnTimer.API.Features;
@@ -10,12 +11,10 @@ public static class UCR
 {
     private const string PluginName = "UncomplicatedCustomRoles";
 
-    private const string SummonedCustomRoleGet =
-        "UncomplicatedCustomRoles.API.Features.SummonedCustomRole.Get";
+    private const string SummonedCustomRoleGet = "UncomplicatedCustomRoles.API.Features.SummonedCustomRole.Get";
 
     public static bool IsAvailable =>
-        DynamicInvoke.GetMethod(PluginName, SummonedCustomRoleGet, true, requiredParamNames: ["player"],
-            requiredParamTypes: [typeof(Player)]) is not null;
+        DynamicInvoke.GetMethod(PluginName, SummonedCustomRoleGet, true, requiredParamNames: ["player"], requiredParamTypes: [typeof(Player)]) is not null;
 
     internal static void Enable()
     {
@@ -27,10 +26,8 @@ public static class UCR
 
         TimerAPI.RegisterProperty("custom_role", player =>
         {
-            TryGetCustomRoleName(player, out var name);
-            return !string.IsNullOrEmpty(name)
-                ? TimerView.Instance.Properties.CustomRole.Replace("{custom_role_name}", name)
-                : name;
+            TryGetCustomRoleName(player, out string name);
+            return !string.IsNullOrEmpty(name) ? TimerView.Instance.Properties.CustomRole.Replace("{custom_role_name}", name) : name;
         });
 
         LogManager.Debug("UCR: Integration enabled, {custom_role} placeholder registered.");
@@ -45,24 +42,20 @@ public static class UCR
     {
         customRoleName = null;
 
-        var getMethod =
-            DynamicInvoke.GetMethod(PluginName, SummonedCustomRoleGet, true, requiredParamNames: ["player"],
-                requiredParamTypes: [typeof(Player)]);
-        var roleGetter = DynamicInvoke.GetMethod(PluginName,
-            "UncomplicatedCustomRoles.API.Features.SummonedCustomRole.Role_get", true);
-        var nameGetter = DynamicInvoke.GetMethod(PluginName,
-            "UncomplicatedCustomRoles.API.Interfaces.ICustomRole.Name_get", true);
+        MethodInfo getMethod = DynamicInvoke.GetMethod(PluginName, SummonedCustomRoleGet, true, requiredParamNames: ["player"], requiredParamTypes: [typeof(Player)]);
+        MethodInfo roleGetter = DynamicInvoke.GetMethod(PluginName, "UncomplicatedCustomRoles.API.Features.SummonedCustomRole.Role_get", true);
+        MethodInfo nameGetter = DynamicInvoke.GetMethod(PluginName, "UncomplicatedCustomRoles.API.Interfaces.ICustomRole.Name_get", true);
 
         if (getMethod is null || roleGetter is null || nameGetter is null)
             return false;
 
         try
         {
-            var summonedInstance = getMethod.Invoke(null, [player]);
+            object summonedInstance = getMethod.Invoke(null, [player]);
             if (summonedInstance is null)
                 return false;
 
-            var role = roleGetter.Invoke(summonedInstance, null);
+            object role = roleGetter.Invoke(summonedInstance, null);
             if (role is null)
                 return false;
 

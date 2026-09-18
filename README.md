@@ -18,7 +18,7 @@
 - **Fully customizable timer** — displays round time, server TPS, spectator count, active generators and more
 - **Custom hints** — add advertisements or gameplay tips that cycle through the interface
 - **Toggle per player** — players can show or hide the timer via Server-Specific Settings
-- **Multiple variants** — compatible with [HintServiceMeow](https://github.com/MeowServer/HintServiceMeow/releases/latest), [RueI](https://github.com/pawslee/RueI) and the base game hint system
+- **Multiple variants** — compatible with [HintServiceMeow](https://github.com/MedveMarci/HintServiceMeow/releases/latest), [RueI](https://github.com/pawslee/RueI) and the base game hint system
 - **Public API** — full C# API for other plugins to register custom placeholders
 
 ---
@@ -27,7 +27,7 @@
 
 1. Download the release that matches your setup from [GitHub Releases](https://github.com/MedveMarci/RespawnTimer/releases/latest):
    - `RespawnTimer.dll` — base game hint system
-   - `RespawnTimer-HSM.dll` — HintServiceMeow
+   - `RespawnTimer-HSM.dll` — HintServiceMeow (my fork of it you can get it, from [here](https://github.com/MedveMarci/HintServiceMeow/releases/latest))
    - `RespawnTimer-RueI.dll` — RueI
 2. Place the `.dll` in your server's plugins folder.
    - Linux: `~/.config/SCP Secret Laboratory/LabAPI/plugins/global/`
@@ -69,7 +69,8 @@ On first launch all required files are downloaded automatically. If a single fil
 | `{sminutes}` / `{sseconds}` | Spawn countdown during wave (all factions) |
 | `{round_hours}` / `{round_minutes}` / `{round_seconds}` | Current round time |
 | `{spectators_num}` | Number of spectators |
-| `{team}` | Next spawning team name |
+| `{team}` | Currently spawning team name (only while a wave is spawning) |
+| `{next_team}` | Name of the wave that can spawn next, colored via `Properties.yml` |
 | `{warhead_status}` | Current warhead status |
 | `{detonation_time}` | Warhead detonation countdown |
 | `{generator_engaged}` / `{generator_count}` | Generator counts |
@@ -97,6 +98,32 @@ Once registered, `{my_placeholder}` can be used in `TimerBeforeSpawn.txt` and `T
 |--------|-------------|
 | `RegisterProperty(string placeholder, Func<Player, string> valueProvider)` | Registers a new custom placeholder |
 | `UnregisterProperty(string placeholder)` | Removes a previously registered placeholder |
+
+### Custom waves
+
+Plugins that add their own `TimeBasedWave` can register it so the timer can display it:
+
+```csharp
+// displayName is used for {team} and {next_team}, "x" enables {xminutes}/{xseconds}/{xtoken},
+// and 14f is the length of the wave's spawn animation, used for the {s...} countdown.
+TimerAPI.RegisterWave<MyWave>("<color=#FF96DE>My Wave</color>", "x", 14f);
+
+// Unregister it
+TimerAPI.UnregisterWave<MyWave>();
+```
+
+Register RespawnTimer as a **soft** dependency where possible, so your plugin keeps working when it
+is not installed. RespawnTimer ships as three separate assemblies (`RespawnTimer`, `RespawnTimer-HSM`
+and `RespawnTimer-RueI`) that all expose the same `RespawnTimer.API.TimerAPI` type, so a hard
+assembly reference binds your plugin to one specific variant. See
+[SerpentsHand](https://github.com/MedveMarci/SerpentsHand) for a reflection-based example.
+
+| Method | Description |
+|--------|-------------|
+| `RegisterWave<T>(string displayName, string placeholder = null, float spawnDuration = 18f)` | Registers a wave with a fixed display name |
+| `RegisterWave<T>(Func<string> displayNameProvider, string placeholder = null, float spawnDuration = 18f)` | Registers a wave whose display name is resolved on each update |
+| `RegisterWave(Type waveType, ...)` | Same as above, for when the wave type is not known at compile time |
+| `UnregisterWave<T>()` / `UnregisterWave(Type waveType)` | Removes a previously registered wave |
 
 ---
 

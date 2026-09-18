@@ -24,6 +24,9 @@ public sealed class Properties
     [Description("The Mini Chaos Insurgency display name.")]
     public string MiniCi { get; private set; } = "<color=green>Mini Chaos Insurgency</color>";
 
+    [Description("The display name used by {next_team} when no wave is able to spawn next.")]
+    public string NoNextTeam { get; private set; } = "<color=red>None</color>";
+
     [Description("CustomRole display name if UCR is available.")]
     public string CustomRole { get; private set; } = "Custom Role: {custom_role_name}";
 

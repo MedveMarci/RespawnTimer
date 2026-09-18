@@ -7,6 +7,7 @@ using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp079;
 using Respawning;
 using Respawning.Waves;
+using Respawning.Waves.Generic;
 using RespawnTimer.Enums;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ public partial class TimerView
         SetRoundTime();
         SetMinutesAndSeconds();
         SetSpawnableTeam();
+        SetNextPossibleTeam();
         SetSpectatorCountAndSpawnChance(spectatorCount);
         SetWarheadStatus();
         SetGeneratorCount();
@@ -137,26 +139,52 @@ public partial class TimerView
     private void SetSpawnableTeam()
     {
         if (WaveManager._nextWave is null) return;
-        switch (WaveManager._nextWave)
+        var displayName = GetWaveDisplayName(WaveManager._nextWave);
+        if (displayName is not null)
+            _stringBuilder.Replace("{team}", displayName);
+    }
+
+    private void SetNextPossibleTeam()
+    {
+        // While a wave is selected or spawning it is the current team, so the next possible
+        // one is whichever of the remaining waves has the least time left on its timer.
+        var currentWave = WaveManager.State is WaveQueueState.WaveSelected or WaveQueueState.WaveSpawning
+            ? WaveManager._nextWave
+            : null;
+
+        var nextWave = WaveManager.Waves
+            .OfType<TimeBasedWave>()
+            .Where(wave => !ReferenceEquals(wave, currentWave) && CanSpawnNext(wave))
+            .OrderBy(wave => wave.Timer.TimeLeft)
+            .FirstOrDefault();
+
+        _stringBuilder.Replace("{next_team}",
+            (nextWave is null ? null : GetWaveDisplayName(nextWave)) ?? Properties.NoNextTeam);
+    }
+
+    // Mirrors the eligibility check WaveManager runs before initiating a respawn, minus the
+    // timer having elapsed - a wave that cannot spawn at all is not a possible next spawn.
+    private static bool CanSpawnNext(TimeBasedWave wave)
+    {
+        return wave.Configuration.IsEnabled
+               && !wave.Timer.IsPaused
+               && !wave.Timer.IsForcefullyPaused
+               && wave is not ILimitedWave { RespawnTokens: <= 0 };
+    }
+
+    /// <summary>Returns the configured display name of a wave, or <see langword="null"/> if it is unknown.</summary>
+    private string GetWaveDisplayName(SpawnableWaveBase wave)
+    {
+        return wave switch
         {
-            case NtfSpawnWave:
-                _stringBuilder.Replace("{team}", Properties.Ntf);
-                break;
-            case NtfMiniWave:
-                _stringBuilder.Replace("{team}", Properties.MiniNtf);
-                break;
-            case ChaosSpawnWave:
-                _stringBuilder.Replace("{team}", Properties.Ci);
-                break;
-            case ChaosMiniWave:
-                _stringBuilder.Replace("{team}", Properties.MiniCi);
-                break;
-            default:
-                var registeredWave = TimerAPI.GetWave(WaveManager._nextWave);
-                if (registeredWave is not null)
-                    _stringBuilder.Replace("{team}", registeredWave.DisplayNameProvider() ?? string.Empty);
-                break;
-        }
+            NtfMiniWave => Properties.MiniNtf,
+            ChaosMiniWave => Properties.MiniCi,
+            NtfSpawnWave => Properties.Ntf,
+            ChaosSpawnWave => Properties.Ci,
+            _ => TimerAPI.GetWave(wave) is { } registeredWave
+                ? registeredWave.DisplayNameProvider() ?? string.Empty
+                : null
+        };
     }
 
     private void SetSpectatorCountAndSpawnChance(int? spectatorCount = null)

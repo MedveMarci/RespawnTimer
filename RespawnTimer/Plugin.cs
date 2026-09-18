@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using LabApi.Events.Handlers;
 using LabApi.Features;
 using LabApi.Features.Wrappers;
@@ -133,7 +131,7 @@ public class RespawnTimer : Plugin<Config>
         LogManager.Warn("==============================================");
     }
 
-    private void EnsureTimerFiles()
+    private static void EnsureTimerFiles()
     {
         var missingFiles = RequiredFiles
             .Where(f => !File.Exists(Path.Combine(RespawnTimerDirectoryPath, f)))
@@ -141,66 +139,44 @@ public class RespawnTimer : Plugin<Config>
 
         if (missingFiles.Count == 0) return;
 
-        DownloadTimerFiles(missingFiles);
+        GenerateTimerFiles(missingFiles);
     }
 
-    private void DownloadTimerFiles(List<string> missingFiles)
+    private static void GenerateTimerFiles(List<string> missingFiles)
     {
-        var zipName = $"{Name}.zip";
-        var zipPath = Path.Combine(RespawnTimerDirectoryPath, zipName);
-        var url = $"https://github.com/MedveMarci/RespawnTimer/releases/download/{Version}/{zipName}";
-
         LogManager.Warn("==============================================");
 
         if (missingFiles.Count == RequiredFiles.Length)
         {
-            LogManager.Info("[RespawnTimer] Timer files are missing. Downloading from GitHub...");
+            LogManager.Info("[RespawnTimer] Timer files are missing. Generating the defaults...");
         }
         else
         {
             LogManager.Warn("[RespawnTimer] The following timer files are missing:");
-            foreach (var f in missingFiles)
-                LogManager.Warn($"[RespawnTimer]   - {f}");
-            LogManager.Info("[RespawnTimer] Downloading missing files from GitHub...");
-        }
-
-        LogManager.Info($"[RespawnTimer] URL: {url}");
-
-        using WebClient client = new();
-        try
-        {
-            client.DownloadFile(url, zipPath);
-        }
-        catch (WebException e)
-        {
-            if (e.Response is HttpWebResponse response)
-                LogManager.Error(
-                    $"[RespawnTimer] Download failed: {(int)response.StatusCode} {response.StatusCode}");
-            else
-                LogManager.Error($"[RespawnTimer] Download failed: {e.Message}");
-            LogManager.Warn("==============================================");
-            return;
-        }
-
-        LogManager.Info($"[RespawnTimer] {zipName} downloaded! Extracting...");
-
-        using (var archive = ZipFile.OpenRead(zipPath))
-        {
             foreach (var fileName in missingFiles)
-            {
-                var entry = archive.GetEntry(fileName);
-                if (entry == null)
-                {
-                    LogManager.Warn($"[RespawnTimer] '{fileName}' was not found in the archive!");
-                    continue;
-                }
+                LogManager.Warn($"[RespawnTimer]   - {fileName}");
+            LogManager.Info("[RespawnTimer] Generating them with their default contents...");
+        }
 
-                entry.ExtractToFile(Path.Combine(RespawnTimerDirectoryPath, fileName), false);
-                LogManager.Info($"[RespawnTimer] Extracted: {fileName}");
+        foreach (var fileName in missingFiles)
+        {
+            if (!DefaultTimerFiles.Contents.TryGetValue(fileName, out var content))
+            {
+                LogManager.Error($"[RespawnTimer] No default content is known for '{fileName}'!");
+                continue;
+            }
+
+            try
+            {
+                File.WriteAllText(Path.Combine(RespawnTimerDirectoryPath, fileName), content);
+                LogManager.Info($"[RespawnTimer] Generated: {fileName}");
+            }
+            catch (Exception e)
+            {
+                LogManager.Error($"[RespawnTimer] Failed to generate '{fileName}': {e.Message}");
             }
         }
 
-        File.Delete(zipPath);
         LogManager.Info("[RespawnTimer] Done!");
         LogManager.Warn("==============================================");
     }

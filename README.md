@@ -32,7 +32,7 @@
 2. Place the `.dll` in your server's plugins folder.
    - Linux: `~/.config/SCP Secret Laboratory/LabAPI/plugins/global/`
    - Windows: `%appdata%/SCP Secret Laboratory/LabAPI/plugins/global/`
-3. Start the server — timer files are downloaded automatically.
+3. Start the server — the timer files are generated automatically.
 
 ---
 
@@ -51,7 +51,9 @@ configs/
     └── Hints.txt
 ```
 
-On first launch all required files are downloaded automatically. If a single file is missing, only that file is re-downloaded.
+All of these are generated on first launch with their default contents. The plugin checks them on every start, so
+deleting a single file (to reset it, for example) is enough — only that file is regenerated, the rest are left
+untouched. No internet connection is needed.
 
 > **Upgrading from an older version?** The plugin will automatically migrate your files from the old `DefaultTimer/` folder to the new location.
 

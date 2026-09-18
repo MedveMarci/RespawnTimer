@@ -15,12 +15,12 @@ internal static class VersionManager
     {
         Task.Run(async () =>
         {
-            var name = RespawnTimer.Singleton.Name;
-            var current = RespawnTimer.Singleton.Version;
+            string name = RespawnTimer.Singleton.Name;
+            Version current = RespawnTimer.Singleton.Version;
 
             try
             {
-                var latest = await FetchLatestVersion(name);
+                (Version Version, string DownloadUrl)? latest = await FetchLatestVersion(name);
                 if (latest is null)
                     return;
 
@@ -43,19 +43,17 @@ internal static class VersionManager
 
     private static async Task<(Version Version, string DownloadUrl)?> FetchLatestVersion(string name)
     {
-        var resp = await WithTimeout(
-            HttpQuery.GetAsync($"{ApiBase}/api/v1/plugin/{Uri.EscapeDataString(name)}/latest"));
+        string resp = await WithTimeout(HttpQuery.GetAsync($"{ApiBase}/api/v1/plugin/{Uri.EscapeDataString(name)}/latest"));
 
-        var (code, _) = ParseResponse(resp);
+        (HttpStatusCode code, _) = ParseResponse(resp);
         if (code != HttpStatusCode.OK)
         {
             LogManager.Error($"Version check failed: {code}");
             return null;
         }
 
-        var root = JsonDocument.Parse(resp).RootElement;
-        if (!root.TryGetProperty("version", out var vProp) || vProp.ValueKind != JsonValueKind.String ||
-            !Version.TryParse(vProp.GetString() ?? string.Empty, out var latest))
+        JsonElement root = JsonDocument.Parse(resp).RootElement;
+        if (!root.TryGetProperty("version", out JsonElement vProp) || vProp.ValueKind != JsonValueKind.String || !Version.TryParse(vProp.GetString() ?? string.Empty, out Version latest))
         {
             LogManager.Error("Version check: invalid response format.");
             return null;
@@ -66,42 +64,31 @@ internal static class VersionManager
 
     private static async Task<bool> IsCurrentVersionRecalled(string name, Version current, Version latest)
     {
-        var resp = await WithTimeout(
-            HttpQuery.GetAsync(
-                $"{ApiBase}/api/v1/plugin/{Uri.EscapeDataString(name)}/version/{Uri.EscapeDataString(current.ToString())}"));
+        string resp = await WithTimeout(HttpQuery.GetAsync($"{ApiBase}/api/v1/plugin/{Uri.EscapeDataString(name)}/version/{Uri.EscapeDataString(current.ToString())}"));
 
-        var root = JsonDocument.Parse(resp).RootElement;
-        if (!root.TryGetProperty("is_recalled", out var recalled) || recalled.ValueKind != JsonValueKind.True)
+        JsonElement root = JsonDocument.Parse(resp).RootElement;
+        if (!root.TryGetProperty("is_recalled", out JsonElement recalled) || recalled.ValueKind != JsonValueKind.True)
             return false;
 
-        var reason = root.TryGetProperty("recall_reason", out var r) && r.ValueKind == JsonValueKind.String
-            ? r.GetString()
-            : "No reason provided.";
+        string reason = root.TryGetProperty("recall_reason", out JsonElement r) && r.ValueKind == JsonValueKind.String ? r.GetString() : "No reason provided.";
 
-        LogManager.Error(
-            $"This version of {name} has been recalled! Update to {latest} ASAP.\nReason: {reason}",
-            ConsoleColor.DarkRed);
+        LogManager.Error($"This version of {name} has been recalled! Update to {latest} ASAP.\nReason: {reason}", ConsoleColor.DarkRed);
         return true;
     }
 
     private static void ReportVersionStatus(string name, Version current, Version latest, string downloadUrl)
     {
         if (latest > current)
-            LogManager.Info(
-                $"New version of {name} available: {latest} (you have {current}). {downloadUrl}".TrimEnd(),
-                ConsoleColor.DarkRed);
+            LogManager.Info($"New version of {name} available: {latest} (you have {current}). {downloadUrl}".TrimEnd(), ConsoleColor.DarkRed);
         else if (current > latest)
-            LogManager.Info(
-                $"You are running a newer version of {name} ({current}) than {latest}. " +
-                "This is a development/pre-release build and it can contain errors or bugs.",
-                ConsoleColor.DarkMagenta);
+            LogManager.Info($"You are running a newer version of {name} ({current}) than {latest}. " + "This is a development/pre-release build and it can contain errors or bugs.", ConsoleColor.DarkMagenta);
         else
             LogManager.Info($"Thank you for using {name} v{current}. Support: {SupportUrl}", ConsoleColor.Blue);
     }
 
     private static async Task<string> WithTimeout(Task<string> task)
     {
-        var completed = await Task.WhenAny(task, Task.Delay(RequestTimeout));
+        Task completed = await Task.WhenAny(task, Task.Delay(RequestTimeout));
         if (completed != task)
             throw new TimeoutException();
         return await task;
@@ -111,13 +98,9 @@ internal static class VersionManager
     {
         try
         {
-            var root = JsonDocument.Parse(json).RootElement;
-            var code = root.TryGetProperty("status", out var s) && s.ValueKind == JsonValueKind.Number
-                ? (HttpStatusCode)s.GetInt32()
-                : HttpStatusCode.InternalServerError;
-            var msg = root.TryGetProperty("message", out var m) && m.ValueKind == JsonValueKind.String
-                ? m.GetString()
-                : null;
+            JsonElement root = JsonDocument.Parse(json).RootElement;
+            HttpStatusCode code = root.TryGetProperty("status", out JsonElement s) && s.ValueKind == JsonValueKind.Number ? (HttpStatusCode)s.GetInt32() : HttpStatusCode.InternalServerError;
+            string msg = root.TryGetProperty("message", out JsonElement m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
             return (code, msg);
         }
         catch
@@ -128,9 +111,6 @@ internal static class VersionManager
 
     private static string GetDownloadUrl(JsonElement root)
     {
-        return root.TryGetProperty("download_url", out var d) && d.ValueKind == JsonValueKind.String &&
-               !string.IsNullOrEmpty(d.GetString())
-            ? $"Download: {d.GetString()}"
-            : string.Empty;
+        return root.TryGetProperty("download_url", out JsonElement d) && d.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(d.GetString()) ? $"Download: {d.GetString()}" : string.Empty;
     }
 }

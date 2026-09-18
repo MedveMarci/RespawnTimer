@@ -26,41 +26,37 @@ public static class TimerAPI
     }
 
     /// <summary>
-    /// Registers a custom <see cref="TimeBasedWave"/> so the timer can display it instead of
-    /// throwing on an unknown wave type.
+    ///     Registers a custom <see cref="TimeBasedWave" /> so the timer can display it instead of
+    ///     throwing on an unknown wave type.
     /// </summary>
     /// <typeparam name="T">The wave type to register.</typeparam>
     /// <param name="displayNameProvider">Value used for the <c>{team}</c> placeholder while this wave is selected.</param>
     /// <param name="placeholder">
-    /// Optional placeholder prefix for this wave's countdown, e.g. <c>"x"</c> enables
-    /// <c>{xminutes}</c> and <c>{xseconds}</c>.
+    ///     Optional placeholder prefix for this wave's countdown, e.g. <c>"x"</c> enables
+    ///     <c>{xminutes}</c> and <c>{xseconds}</c>.
     /// </param>
     /// <param name="spawnDuration">Length (seconds) of the spawn animation, used for the <c>{s...}</c> countdown.</param>
-    public static void RegisterWave<T>(Func<string> displayNameProvider, string placeholder = null,
-        float spawnDuration = 18f) where T : TimeBasedWave
+    public static void RegisterWave<T>(Func<string> displayNameProvider, string placeholder = null, float spawnDuration = 18f) where T : TimeBasedWave
     {
         RegisterWave(typeof(T), displayNameProvider, placeholder, spawnDuration);
     }
 
-    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)"/>
-    public static void RegisterWave<T>(string displayName, string placeholder = null, float spawnDuration = 18f)
-        where T : TimeBasedWave
+    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)" />
+    public static void RegisterWave<T>(string displayName, string placeholder = null, float spawnDuration = 18f) where T : TimeBasedWave
     {
         RegisterWave(typeof(T), () => displayName, placeholder, spawnDuration);
     }
 
-    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)"/>
-    public static void RegisterWave(Type waveType, Func<string> displayNameProvider, string placeholder = null,
-        float spawnDuration = 18f)
+    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)" />
+    public static void RegisterWave(Type waveType, Func<string> displayNameProvider, string placeholder = null, float spawnDuration = 18f)
     {
         if (waveType is null) throw new ArgumentNullException(nameof(waveType));
         if (displayNameProvider is null) throw new ArgumentNullException(nameof(displayNameProvider));
         _waves[waveType] = new RegisteredWave(waveType, displayNameProvider, placeholder, spawnDuration);
     }
 
-    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)"/>
-    public static void RegisterWave(Type waveType, string displayName, string placeholder = null,
-        float spawnDuration = 18f)
+    /// <inheritdoc cref="RegisterWave{T}(System.Func{string},string,float)" />
+    public static void RegisterWave(Type waveType, string displayName, string placeholder = null, float spawnDuration = 18f)
     {
         RegisterWave(waveType, () => displayName, placeholder, spawnDuration);
     }
@@ -78,8 +74,8 @@ public static class TimerAPI
     internal static RegisteredWave GetWave(object wave)
     {
         if (wave is null) return null;
-        if (_waves.TryGetValue(wave.GetType(), out var registered)) return registered;
-        foreach (var entry in _waves.Values)
+        if (_waves.TryGetValue(wave.GetType(), out RegisteredWave registered)) return registered;
+        foreach (RegisteredWave entry in _waves.Values)
             if (entry.WaveType.IsInstanceOfType(wave))
                 return entry;
         return null;

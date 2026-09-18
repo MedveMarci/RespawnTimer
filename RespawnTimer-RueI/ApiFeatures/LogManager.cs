@@ -6,6 +6,7 @@ namespace RespawnTimer.ApiFeatures;
 internal static class LogManager
 {
     private static bool DebugEnabled => RespawnTimer.Singleton?.Config.Debug ?? false;
+
     private static string PluginName => RespawnTimer.Singleton?.Name ?? "RespawnTimer-RueI";
 
     public static void Debug(string message)

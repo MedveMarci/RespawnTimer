@@ -24,13 +24,12 @@ public static class DynamicInvoke
     /// <param name="address"></param>
     /// <param name="isLabapi"></param>
     /// <returns></returns>
-    public static MethodInfo GetMethod(string plugin, string address, bool isLabapi = false, int methodCounter = -1,
-        string[] requiredParamNames = null, Type[] requiredParamTypes = null)
+    public static MethodInfo GetMethod(string plugin, string address, bool isLabapi = false, int methodCounter = -1, string[] requiredParamNames = null, Type[] requiredParamTypes = null)
     {
-        if (_methods.TryGetValue(address, out var method))
+        if (_methods.TryGetValue(address, out MethodInfo method))
             return method;
 
-        if (!_assemblies.TryGetValue(plugin, out var assembly))
+        if (!_assemblies.TryGetValue(plugin, out Assembly assembly))
         {
             assembly = isLabapi ? GetLabAPIAssembly(plugin) : GetExiledAssembly(plugin);
             _assemblies.Add(plugin, assembly);
@@ -39,10 +38,10 @@ public static class DynamicInvoke
         if (assembly is null)
             return null; // Soft dependency not found - chill
 
-        var argument = address.Split('.')?.Last();
-        var stringType = address.Replace($".{argument}", string.Empty);
+        string argument = address.Split('.')?.Last();
+        string stringType = address.Replace($".{argument}", string.Empty);
 
-        if (!_types.TryGetValue(stringType, out var type))
+        if (!_types.TryGetValue(stringType, out Type type))
         {
             type = assembly.GetType(stringType);
             _types.Add(stringType, type);
@@ -56,14 +55,13 @@ public static class DynamicInvoke
 
         if (argument.Contains('_')) // Handle <property>_get and <property>_set cases - Element IS a property
         {
-            var stringProperty = argument.Split('_')[0]; // Cannot be null
-            var property = type.GetProperty(stringProperty);
+            string stringProperty = argument.Split('_')[0]; // Cannot be null
+            PropertyInfo property = type.GetProperty(stringProperty);
             MethodInfo resultMethod;
 
             if (property is null)
             {
-                LogManager.Warn(
-                    $"[DynamicInvoke] Failed to locate property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn($"[DynamicInvoke] Failed to locate property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
@@ -74,8 +72,7 @@ public static class DynamicInvoke
 
             if (resultMethod is null)
             {
-                LogManager.Warn(
-                    $"[DynamicInvoke] Failed to locate method _get() or _set() in property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn($"[DynamicInvoke] Failed to locate method _get() or _set() in property {stringProperty} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
@@ -84,13 +81,12 @@ public static class DynamicInvoke
         }
         else // Normal method
         {
-            var resultMethods = type.GetMethods().Where(m => m.Name == argument);
+            IEnumerable<MethodInfo> resultMethods = type.GetMethods().Where(m => m.Name == argument);
             MethodInfo resultMethod;
 
-            if (methodCounter != -1 || (requiredParamNames is not null && requiredParamNames.Length > 0) ||
-                (requiredParamTypes is not null && requiredParamTypes.Length > 0))
+            if (methodCounter != -1 || (requiredParamNames is not null && requiredParamNames.Length > 0) || (requiredParamTypes is not null && requiredParamTypes.Length > 0))
             {
-                var filtered = resultMethods;
+                IEnumerable<MethodInfo> filtered = resultMethods;
 
                 if (methodCounter != -1)
                     filtered = filtered.Where(m => m.GetParameters().Length == methodCounter);
@@ -98,16 +94,15 @@ public static class DynamicInvoke
                 if (requiredParamNames is not null && requiredParamNames.Length > 0)
                     filtered = filtered.Where(m =>
                     {
-                        var paramNames = m.GetParameters().Select(p => p.Name).ToArray();
-                        return requiredParamNames.All(rpn =>
-                            paramNames.Contains(rpn, StringComparer.OrdinalIgnoreCase));
+                        string[] paramNames = m.GetParameters().Select(p => p.Name).ToArray();
+                        return requiredParamNames.All(rpn => paramNames.Contains(rpn, StringComparer.OrdinalIgnoreCase));
                     });
 
                 // Disambiguates overloads that share parameter names (e.g. Get(Player) vs Get(ReferenceHub))
                 if (requiredParamTypes is not null && requiredParamTypes.Length > 0)
                     filtered = filtered.Where(m =>
                     {
-                        var paramTypes = m.GetParameters().Select(p => p.ParameterType).ToArray();
+                        Type[] paramTypes = m.GetParameters().Select(p => p.ParameterType).ToArray();
                         return requiredParamTypes.All(rpt => paramTypes.Contains(rpt));
                     });
 
@@ -120,8 +115,7 @@ public static class DynamicInvoke
 
             if (resultMethod is null)
             {
-                LogManager.Warn(
-                    $"[DynamicInvoke] Failed to locate method {argument} in type {stringType} in assembly {assembly.FullName}!");
+                LogManager.Warn($"[DynamicInvoke] Failed to locate method {argument} in type {stringType} in assembly {assembly.FullName}!");
                 return null;
             }
 
@@ -152,7 +146,7 @@ public static class DynamicInvoke
     {
         try
         {
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(p => p.FullName.Contains(pluginName));
+            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(p => p.FullName.Contains(pluginName));
             return assembly;
         }
         catch (Exception e)

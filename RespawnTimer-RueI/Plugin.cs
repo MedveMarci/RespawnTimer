@@ -21,23 +21,26 @@ public class RespawnTimer : Plugin<Config>
 {
     public static RespawnTimer Singleton;
 
-    private static readonly string[] RequiredFiles =
-        ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Hints.txt"];
+    private static readonly string[] RequiredFiles = ["TimerBeforeSpawn.txt", "TimerDuringSpawn.txt", "Hints.txt"];
 
     private EventHandler _eventHandler;
+
     public static string RespawnTimerDirectoryPath { get; private set; }
 
     public override string Name => "RespawnTimer-RueI";
+
     public override string Description => "A customizable respawn timer for SCP:SL.";
+
     public override string Author => "MedveMarci";
+
     public override Version Version => new(1, 5, 0);
+
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     public override void Enable()
     {
         Singleton = this;
-        if (PluginLoader.Plugins.Keys.Any(plugin =>
-                plugin != this && plugin.Name.Contains("RespawnTimer", StringComparison.OrdinalIgnoreCase)))
+        if (PluginLoader.Plugins.Keys.Any(plugin => plugin != this && plugin.Name.Contains("RespawnTimer", StringComparison.OrdinalIgnoreCase)))
         {
             LogManager.Error("Another instance of RespawnTimer is already loaded!");
             return;
@@ -65,18 +68,16 @@ public class RespawnTimer : Plugin<Config>
         ServerSpecificSettingBase[] setting =
         [
             new SSGroupHeader("RespawnTimer"),
-            new SSTwoButtonsSetting(1, "Timers", "Show", "Hide", false,
-                "Toggle RespawnTimer for yourself.")
+            new SSTwoButtonsSetting(1, "Timers", "Show", "Hide", false, "Toggle RespawnTimer for yourself.")
         ];
 
-        if (ServerSpecificSettingsSync.DefinedSettings == null ||
-            ServerSpecificSettingsSync.DefinedSettings.Length == 0)
+        if (ServerSpecificSettingsSync.DefinedSettings == null || ServerSpecificSettingsSync.DefinedSettings.Length == 0)
         {
             ServerSpecificSettingsSync.DefinedSettings = setting;
         }
         else
         {
-            var newSettings = new List<ServerSpecificSettingBase>(ServerSpecificSettingsSync.DefinedSettings);
+            List<ServerSpecificSettingBase> newSettings = new(ServerSpecificSettingsSync.DefinedSettings);
             newSettings.AddRange(setting);
             ServerSpecificSettingsSync.DefinedSettings = newSettings.ToArray();
         }
@@ -100,17 +101,17 @@ public class RespawnTimer : Plugin<Config>
 
     private void MigrateFromLegacy()
     {
-        var oldDir = Path.Combine(RespawnTimerDirectoryPath, "DefaultTimer");
+        string oldDir = Path.Combine(RespawnTimerDirectoryPath, "DefaultTimer");
         if (!Directory.Exists(oldDir)) return;
 
         LogManager.Warn("==============================================");
         LogManager.Warn("[RespawnTimer] Legacy 'DefaultTimer' folder detected!");
         LogManager.Warn("[RespawnTimer] Migrating files to the new location...");
 
-        var migrated = false;
-        foreach (var file in Directory.GetFiles(oldDir))
+        bool migrated = false;
+        foreach (string file in Directory.GetFiles(oldDir))
         {
-            var dest = Path.Combine(RespawnTimerDirectoryPath, Path.GetFileName(file));
+            string dest = Path.Combine(RespawnTimerDirectoryPath, Path.GetFileName(file));
             if (File.Exists(dest)) continue;
             File.Move(file, dest);
             LogManager.Info($"[RespawnTimer] Migrated: {Path.GetFileName(file)}");
@@ -131,9 +132,7 @@ public class RespawnTimer : Plugin<Config>
 
     private static void EnsureTimerFiles()
     {
-        var missingFiles = RequiredFiles
-            .Where(f => !File.Exists(Path.Combine(RespawnTimerDirectoryPath, f)))
-            .ToList();
+        List<string> missingFiles = RequiredFiles.Where(f => !File.Exists(Path.Combine(RespawnTimerDirectoryPath, f))).ToList();
 
         if (missingFiles.Count == 0) return;
 
@@ -151,14 +150,14 @@ public class RespawnTimer : Plugin<Config>
         else
         {
             LogManager.Warn("[RespawnTimer] The following timer files are missing:");
-            foreach (var fileName in missingFiles)
+            foreach (string fileName in missingFiles)
                 LogManager.Warn($"[RespawnTimer]   - {fileName}");
             LogManager.Info("[RespawnTimer] Generating them with their default contents...");
         }
 
-        foreach (var fileName in missingFiles)
+        foreach (string fileName in missingFiles)
         {
-            if (!DefaultTimerFiles.Contents.TryGetValue(fileName, out var content))
+            if (!DefaultTimerFiles.Contents.TryGetValue(fileName, out string content))
             {
                 LogManager.Error($"[RespawnTimer] No default content is known for '{fileName}'!");
                 continue;
@@ -183,6 +182,6 @@ public class RespawnTimer : Plugin<Config>
     {
         TimerView.Unload();
         TimerView.Load();
-        foreach (var player in Player.ReadyList) EventHandler.RefreshHint(player, player.Role);
+        foreach (Player player in Player.ReadyList) EventHandler.RefreshHint(player, player.Role);
     }
 }
